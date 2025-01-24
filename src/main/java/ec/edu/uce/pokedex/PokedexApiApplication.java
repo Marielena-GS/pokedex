@@ -6,17 +6,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.io.*;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
 @SpringBootApplication
 public class PokedexApiApplication implements CommandLineRunner {
@@ -37,15 +30,6 @@ public class PokedexApiApplication implements CommandLineRunner {
 		if (pokemonData != null) {
 			System.out.println("Información del Pokémon:");
 			System.out.println(pokemonData.toString(4)); // Con un indentado de 4 espacios
-
-			// Descargar el sprite shiny
-			String shinySpriteUrl = obtenerShinySpriteUrl(pokemonData);
-			if (shinySpriteUrl != null && !shinySpriteUrl.isEmpty()) {
-				descargarImagen(shinySpriteUrl, "front_shiny.png");
-				System.out.println("Sprite shiny descargado exitosamente.");
-			} else {
-				System.out.println("No se encontró el sprite shiny.");
-			}
 
 			// Obtener la cadena de evolución
 			int evolucionChainId = obtenerEvolucionChainId(pokemonData);
@@ -147,32 +131,4 @@ public class PokedexApiApplication implements CommandLineRunner {
 			return null;
 		}
 	}
-
-	// Método para obtener la URL del sprite shiny (front_shiny)
-	public static String obtenerShinySpriteUrl(JSONObject pokemonData) {
-		try {
-			JSONObject sprites = pokemonData.getJSONObject("sprites");
-			return sprites.getString("front_shiny"); // Obtener la URL del sprite shiny
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	// Método para descargar una imagen desde una URL
-	public static void descargarImagen(String urlStr, String fileName) {
-		try {
-			URL url = new URL(urlStr);
-			Path targetPath = Path.of(fileName);
-
-			// Descargar la imagen y guardarla en el sistema de archivos
-			try (InputStream in = url.openStream()) {
-				Files.copy(in, targetPath, StandardCopyOption.REPLACE_EXISTING);
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 }
-//https://www.mediafire.com/file/r7mgg4fgfgivnlu/Graficos+Pokemon+By+Ryder.rar
