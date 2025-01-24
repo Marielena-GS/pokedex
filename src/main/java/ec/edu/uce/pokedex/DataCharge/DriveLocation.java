@@ -9,34 +9,34 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class DriverTypes {
+    public class DriveLocation {
 
         private int id;
         private String name;
 
         public void ejecutar() {
-            // Consultar los tipos de Pokémon
-            JSONObject typesData = obtenerTipos();
+            // Consultar los lugares de aparición de Pokémon
+            JSONObject locationsData = obtenerLocations();
 
-            if (typesData != null) {
-                // Extraer y mostrar la información de los tipos
-                JSONArray types = typesData.getJSONArray("results");
-                for (int i = 0; i < types.length(); i++) {
-                    JSONObject type = types.getJSONObject(i);
+            if (locationsData != null) {
+                // Extraer y mostrar la información de los lugares
+                JSONArray locations = locationsData.getJSONArray("results");
+                for (int i = 0; i < locations.length(); i++) {
+                    JSONObject location = locations.getJSONObject(i);
                     this.id = i;  // Asignar un ID secuencial basado en el índice
-                    this.name = type.getString("name");
+                    this.name = location.getString("name");
 
-                    // Imprimir la información del tipo
-                    System.out.println("Tipo ID: " + this.id);
-                    System.out.println("Nombre del tipo: " + this.name);
+                    // Imprimir la información del lugar
+                    System.out.println("Location ID: " + this.id);
+                    System.out.println("Nombre del lugar: " + this.name);
                 }
             } else {
-                System.out.println("No se pudo obtener información de los tipos.");
+                System.out.println("No se pudo obtener información de los lugares.");
             }
         }
 
-        public JSONObject obtenerTipos() {
-            return obtenerDatosDeUrl("https://pokeapi.co/api/v2/type");
+        public JSONObject obtenerLocations() {
+            return obtenerDatosDeUrl("https://pokeapi.co/api/v2/location?limit=1039"); // Ajusta el límite si lo necesitas
         }
 
         public JSONObject obtenerDatosDeUrl(String url) {
@@ -52,6 +52,5 @@ public class DriverTypes {
                 return null;
             }
         }
+    }
 
-
-}

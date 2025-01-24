@@ -1,7 +1,6 @@
 package ec.edu.uce.pokedex;
 
-import ec.edu.uce.pokedex.DataCharge.DriverPokemon;
-import ec.edu.uce.pokedex.DataCharge.DriverTypes;
+import ec.edu.uce.pokedex.DataCharge.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,7 +16,18 @@ public class PokedexApiApplication implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		//DriverPokemon pokedexService = new DriverPokemon();
 		//pokedexService.ejecutar();
-		DriverTypes pokedexServiceType = new DriverTypes();
-		pokedexServiceType.ejecutar();
+		//DriverTypes pokedexServiceType = new DriverTypes();
+		//pokedexServiceType.ejecutar();
+		//DriverHabitad pokedexServiceHabitad = new DriverHabitad();
+		//pokedexServiceHabitad.ejecutar();
+		//DriverMove pokedexServiceMoves = new DriverMove();
+		//pokedexServiceMoves.ejecutar();
+		//DriveAbility pokedexServiceAbility = new DriveAbility();
+		//pokedexServiceAbility.ejecutar();
+		//DriveLocation pokedexServceLocation = new DriveLocation();
+		//pokedexServceLocation.ejecutar();
+		//DriverRegion pokedexServiceRegion = new DriverRegion();
+		//pokedexServiceRegion.ejecutar();
+
 	}
 }
