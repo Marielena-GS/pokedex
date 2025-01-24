@@ -1,12 +1,12 @@
 package ec.edu.uce.pokedex.jpa;
 
-public class Region {
+public class Locations {
     private int id;
     private String name;
 
-    public Region() { }
+    public Locations() { }
 
-    public Region(int id, String name) {
+    public Locations(int id, String name) {
         this.id = id;
         this.name = name;
     }
