@@ -9,7 +9,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class Driver {
+public class DriverPokemon {
 
     private int id;
     private String name;
