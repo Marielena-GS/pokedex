@@ -1,4 +1,4 @@
-package ec.edu.uce.pokedex;
+package ec.edu.uce.pokedex.DataCharge;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -9,7 +9,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-class Driver {
+public class Driver {
 
     private int id;
     private String name;
