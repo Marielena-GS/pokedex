@@ -8,14 +8,21 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.util.ArrayList;
-import java.util.List;
 
 class Driver {
+
+    private int id;
+    private String name;
+    private int height;
+    private int weight;
+    private double stats_hp;
+    private double stats_attack;
+    private double stats_defense;
+    private double stats_special_attack;
+    private double stats_special_defense;
+    private double stats_speed;
+    private double stats_accuracy;
+    private double stats_evasion;
 
     public void ejecutar() {
         int idPokemon = 4; // ID de Charmander
@@ -23,49 +30,52 @@ class Driver {
         JSONObject pokemonData = obtenerPokemon(idPokemon);
 
         if (pokemonData != null) {
-            JSONObject speciesData = obtenerDatosDeUrl(pokemonData.getJSONObject("species").getString("url"));
+            // Información básica
+            this.id = pokemonData.getInt("id");
+            this.name = pokemonData.getString("name");
+            this.height = pokemonData.getInt("height");
+            this.weight = pokemonData.getInt("weight");
 
+            // Estadísticas
+            JSONArray stats = pokemonData.getJSONArray("stats");
+            for (int i = 0; i < stats.length(); i++) {
+                JSONObject stat = stats.getJSONObject(i).getJSONObject("stat");
+                int baseStat = stats.getJSONObject(i).getInt("base_stat");
+                String statName = stat.getString("name");
+
+                if (statName.equals("hp")) {
+                    stats_hp = baseStat;
+                } else if (statName.equals("attack")) {
+                    stats_attack = baseStat;
+                } else if (statName.equals("defense")) {
+                    stats_defense = baseStat;
+                } else if (statName.equals("special-attack")) {
+                    stats_special_attack = baseStat;
+                } else if (statName.equals("special-defense")) {
+                    stats_special_defense = baseStat;
+                } else if (statName.equals("speed")) {
+                    stats_speed = baseStat;
+                } else if (statName.equals("accuracy")) {
+                    stats_accuracy = baseStat;
+                } else if (statName.equals("evasion")) {
+                    stats_evasion = baseStat;
+                }
+            }
+
+            // Imprimir información
             System.out.println("Información del Pokémon:");
-            System.out.println("ID: " + pokemonData.getInt("id"));
-            System.out.println("Nombre: " + pokemonData.getString("name"));
-            System.out.println("Peso: " + pokemonData.getInt("weight"));
-            System.out.println("Especie: " + speciesData.getString("name"));
-
-            // Habilidades
-            JSONArray abilities = pokemonData.getJSONArray("abilities");
-            List<String> habilidades = new ArrayList<>();
-            for (int i = 0; i < abilities.length(); i++) {
-                JSONObject ability = abilities.getJSONObject(i).getJSONObject("ability");
-                int abilityId = extraerId(ability.getString("url"));
-                habilidades.add(ability.getString("name") + " (ID: " + abilityId + ")");
-            }
-            System.out.println("Habilidades: " + habilidades);
-
-            // Movimientos (máximo 5)
-            JSONArray moves = pokemonData.getJSONArray("moves");
-            List<String> movimientos = new ArrayList<>();
-            for (int i = 0; i < Math.min(moves.length(), 5); i++) {
-                JSONObject move = moves.getJSONObject(i).getJSONObject("move");
-                int moveId = extraerId(move.getString("url"));
-                movimientos.add(move.getString("name") + " (ID: " + moveId + ")");
-            }
-            System.out.println("Movimientos: " + movimientos);
-
-            // Región y hábitat
-            String habitat = speciesData.has("habitat") ? speciesData.getJSONObject("habitat").getString("name") : "Desconocido";
-            String region = speciesData.has("generation") ? speciesData.getJSONObject("generation").getString("name") : "Desconocido";
-            System.out.println("Hábitat: " + habitat);
-            System.out.println("Región: " + region);
-
-            // Cadena de evolución
-            int evolucionChainId = obtenerEvolucionChainId(speciesData);
-            if (evolucionChainId != -1) {
-                JSONObject evolucionData = obtenerCadenaEvolucion(evolucionChainId);
-                List<String> evoluciones = obtenerEvoluciones(evolucionData.getJSONObject("chain"));
-                System.out.println("Evoluciones: " + evoluciones);
-            } else {
-                System.out.println("No se encontró información sobre la cadena de evolución.");
-            }
+            System.out.println("ID: " + this.id);
+            System.out.println("Nombre: " + this.name);
+            System.out.println("Altura: " + this.height);
+            System.out.println("Peso: " + this.weight);
+            System.out.println("HP: " + this.stats_hp);
+            System.out.println("Ataque: " + this.stats_attack);
+            System.out.println("Defensa: " + this.stats_defense);
+            System.out.println("Ataque Especial: " + this.stats_special_attack);
+            System.out.println("Defensa Especial: " + this.stats_special_defense);
+            System.out.println("Velocidad: " + this.stats_speed);
+            System.out.println("Precisión: " + this.stats_accuracy);
+            System.out.println("Evasión: " + this.stats_evasion);
         } else {
             System.out.println("No se pudo obtener información del Pokémon.");
         }
@@ -87,41 +97,5 @@ class Driver {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public int obtenerEvolucionChainId(JSONObject speciesData) {
-        try {
-            String evolutionChainUrl = speciesData.getJSONObject("evolution_chain").getString("url");
-            return extraerId(evolutionChainUrl);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public JSONObject obtenerCadenaEvolucion(int evolucionChainId) {
-        return obtenerDatosDeUrl("https://pokeapi.co/api/v2/evolution-chain/" + evolucionChainId);
-    }
-
-    public List<String> obtenerEvoluciones(JSONObject evolutionChain) {
-        List<String> evoluciones = new ArrayList<>();
-        extraerEvoluciones(evolutionChain, evoluciones);
-        return evoluciones;
-    }
-
-    private void extraerEvoluciones(JSONObject evolutionData, List<String> evoluciones) {
-        String nombre = evolutionData.getJSONObject("species").getString("name");
-        int id = extraerId(evolutionData.getJSONObject("species").getString("url"));
-        evoluciones.add(nombre + " (ID: " + id + ")");
-
-        JSONArray evolvesTo = evolutionData.getJSONArray("evolves_to");
-        for (int i = 0; i < evolvesTo.length(); i++) {
-            extraerEvoluciones(evolvesTo.getJSONObject(i), evoluciones);
-        }
-    }
-
-    private int extraerId(String url) {
-        String[] partes = url.split("/");
-        return Integer.parseInt(partes[partes.length - 1]);
     }
 }
