@@ -14,8 +14,8 @@ public class PokedexApiApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		//DriverPokemon pokedexService = new DriverPokemon();
-		//pokedexService.ejecutar();
+		DriverPokemon pokedexService = new DriverPokemon();
+		pokedexService.ejecutar();
 		//DriverTypes pokedexServiceType = new DriverTypes();
 		//pokedexServiceType.ejecutar();
 		//DriverHabitad pokedexServiceHabitad = new DriverHabitad();
@@ -24,8 +24,8 @@ public class PokedexApiApplication implements CommandLineRunner {
 		//pokedexServiceMoves.ejecutar();
 		//DriveAbility pokedexServiceAbility = new DriveAbility();
 		//pokedexServiceAbility.ejecutar();
-		DriveLocation pokedexServceLocation = new DriveLocation();
-		pokedexServceLocation.ejecutar();
+		//DriveLocation pokedexServceLocation = new DriveLocation();
+		//pokedexServceLocation.ejecutar();
 		//DriverRegion pokedexServiceRegion = new DriverRegion();
 		//pokedexServiceRegion.ejecutar();
 

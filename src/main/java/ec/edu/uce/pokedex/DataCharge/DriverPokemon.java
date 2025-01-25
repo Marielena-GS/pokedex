@@ -1,5 +1,6 @@
 package ec.edu.uce.pokedex.DataCharge;
 
+import ec.edu.uce.pokedex.jpa.Pokemon;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -8,6 +9,10 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DriverPokemon {
 
@@ -25,66 +30,120 @@ public class DriverPokemon {
     private double stats_evasion;
 
     public void ejecutar() {
-        int idPokemon = 4; // ID de Charmander
+        // Obtenemos la lista de Pokémon
+        JSONObject listOfPokemons = obtenerPokemonLista();
 
-        JSONObject pokemonData = obtenerPokemon(idPokemon);
+        if (listOfPokemons != null) {
+            // Extraemos el array "results", que contiene los Pokémon
+            JSONArray results = listOfPokemons.getJSONArray("results");
 
-        if (pokemonData != null) {
-            // Información básica
-            this.id = pokemonData.getInt("id");
-            this.name = pokemonData.getString("name");
-            this.height = pokemonData.getInt("height");
-            this.weight = pokemonData.getInt("weight");
+            // Iteramos sobre los resultados y obtenemos detalles de cada Pokémon
+            for (int i = 0; i < results.length(); i++) {
+                Pokemon pokemon = new Pokemon();
+                JSONObject pokemonInfo = results.getJSONObject(i);
+                String pokemonUrl = pokemonInfo.getString("url");
 
-            // Estadísticas
-            JSONArray stats = pokemonData.getJSONArray("stats");
-            for (int i = 0; i < stats.length(); i++) {
-                JSONObject stat = stats.getJSONObject(i).getJSONObject("stat");
-                int baseStat = stats.getJSONObject(i).getInt("base_stat");
-                String statName = stat.getString("name");
+                // Obtener los detalles de cada Pokémon
+                JSONObject pokemonData = obtenerDatosDeUrl(pokemonUrl);
 
-                if (statName.equals("hp")) {
-                    stats_hp = baseStat;
-                } else if (statName.equals("attack")) {
-                    stats_attack = baseStat;
-                } else if (statName.equals("defense")) {
-                    stats_defense = baseStat;
-                } else if (statName.equals("special-attack")) {
-                    stats_special_attack = baseStat;
-                } else if (statName.equals("special-defense")) {
-                    stats_special_defense = baseStat;
-                } else if (statName.equals("speed")) {
-                    stats_speed = baseStat;
-                } else if (statName.equals("accuracy")) {
-                    stats_accuracy = baseStat;
-                } else if (statName.equals("evasion")) {
-                    stats_evasion = baseStat;
+                // Aquí procesas la información detallada del Pokémon
+                if (pokemonData != null) {
+                    // Información básica
+                    pokemon.setId(pokemonData.getInt("id"));
+                    pokemon.setName(pokemonData.getString("name"));
+                    pokemon.setHeight(pokemonData.getInt("height"));
+                    pokemon.setWeight(pokemonData.getInt("weight"));
+
+                    // Estadísticas
+                    JSONArray stats = pokemonData.getJSONArray("stats");
+
+                    // Convertimos el array de stats a una lista utilizando Streams
+                    List<JSONObject> statList = Stream.iterate(0, j -> j + 1)
+                            .limit(stats.length())
+                            .map(stats::getJSONObject)
+                            .collect(Collectors.toList());
+                    // Procesamos los stats y asignamos los valores correspondientes
+                    statList.stream().parallel()
+                            .map(stat -> {
+                                String statName = stat.getJSONObject("stat").getString("name");
+                                int baseStat = stat.getInt("base_stat");
+                                return new StatInfo(statName, baseStat);
+                            })
+                            .forEach(statInfo -> {
+                                switch (statInfo.getName()) {
+                                    case "hp":
+                                        pokemon.setStats_hp(statInfo.getBaseStat());
+                                        break;
+                                    case "attack":
+                                        pokemon.setStats_attack(statInfo.getBaseStat());
+                                        break;
+                                    case "defense":
+                                        pokemon.setStats_defense(statInfo.getBaseStat());
+                                        break;
+                                    case "special-attack":
+                                        pokemon.setStats_special_attack(statInfo.getBaseStat());
+                                        break;
+                                    case "special-defense":
+                                        pokemon.setStats_special_defense(statInfo.getBaseStat());
+                                        break;
+                                    case "speed":
+                                        pokemon.setStats_speed(statInfo.getBaseStat());
+                                        break;
+                                    case "accuracy":
+                                        pokemon.setStats_accuracy(statInfo.getBaseStat());
+                                        break;
+                                    case "evasion":
+                                        pokemon.setStats_evasion(statInfo.getBaseStat());
+                                        break;
+                                }
+                            });
+
+                    // Imprimir información del Pokémon
+                    System.out.println("Información del Pokémon:");
+                    System.out.println("ID: " + pokemon.getId());
+                    System.out.println("Nombre: " + pokemon.getName());
+                    System.out.println("Altura: " + pokemon.getHeight());
+                    System.out.println("Peso: " + pokemon.getWeight());
+                    System.out.println("HP: " + pokemon.getStats_hp());
+                    System.out.println("Ataque: " + pokemon.getStats_attack());
+                    System.out.println("Defensa: " + pokemon.getStats_defense());
+                    System.out.println("Ataque Especial: " + pokemon.getStats_special_attack());
+                    System.out.println("Defensa Especial: " + pokemon.getStats_special_defense());
+                    System.out.println("Velocidad: " + pokemon.getStats_speed());
+                    System.out.println("Precisión: " + pokemon.getStats_accuracy());
+                    System.out.println("Evasión: " + pokemon.getStats_evasion());
                 }
             }
-
-            // Imprimir información
-            System.out.println("Información del Pokémon:");
-            System.out.println("ID: " + this.id);
-            System.out.println("Nombre: " + this.name);
-            System.out.println("Altura: " + this.height);
-            System.out.println("Peso: " + this.weight);
-            System.out.println("HP: " + this.stats_hp);
-            System.out.println("Ataque: " + this.stats_attack);
-            System.out.println("Defensa: " + this.stats_defense);
-            System.out.println("Ataque Especial: " + this.stats_special_attack);
-            System.out.println("Defensa Especial: " + this.stats_special_defense);
-            System.out.println("Velocidad: " + this.stats_speed);
-            System.out.println("Precisión: " + this.stats_accuracy);
-            System.out.println("Evasión: " + this.stats_evasion);
         } else {
-            System.out.println("No se pudo obtener información del Pokémon.");
+            System.out.println("No se pudo obtener la lista de Pokémon.");
         }
     }
 
-    public JSONObject obtenerPokemon(int id) {
-        return obtenerDatosDeUrl("https://pokeapi.co/api/v2/pokemon/" + id);
+    // Clase auxiliar para representar cada estadística de Pokémon
+    public static class StatInfo {
+        private final String name;
+        private final int baseStat;
+
+        public StatInfo(String name, int baseStat) {
+            this.name = name;
+            this.baseStat = baseStat;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getBaseStat() {
+            return baseStat;
+        }
     }
 
+    // Obtener la lista de Pokémon
+    public JSONObject obtenerPokemonLista() {
+        return obtenerDatosDeUrl("https://pokeapi.co/api/v2/pokemon?limit=1304");
+    }
+
+    // Obtener los detalles de un Pokémon a partir de la URL
     public JSONObject obtenerDatosDeUrl(String url) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(url);
@@ -98,4 +157,5 @@ public class DriverPokemon {
             return null;
         }
     }
+
 }
