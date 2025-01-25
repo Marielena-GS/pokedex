@@ -3,13 +3,15 @@ package ec.edu.uce.pokedex.jpa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "Move")
 public class Move {
 
-    @Id @Column
+    @Id @Column(name = "id")
     private int id;
-    @Column
+    @Column(name = "name_move")
     private String name;
 
     public Move() { }
