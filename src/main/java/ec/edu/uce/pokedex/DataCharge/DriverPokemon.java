@@ -36,6 +36,7 @@ public class DriverPokemon {
                 if (pokemonData == null) continue;
 
                 // Obtener datos básicos del Pokémon
+                int pokemonId = pokemonData.getInt("id");
                 String pokemonName = pokemonData.getString("name");
                 int height = pokemonData.getInt("height");
                 int weight = pokemonData.getInt("weight");
@@ -96,6 +97,7 @@ public class DriverPokemon {
 
                 // Imprimir la información del Pokémon con sus regiones y tipos
                 System.out.println("Información básica del Pokémon:");
+                System.out.println("ID: " + pokemonId);
                 System.out.println("Nombre: " + pokemonName);
                 System.out.println("Altura: " + height);
                 System.out.println("Peso: " + weight);
