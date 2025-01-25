@@ -9,9 +9,9 @@ import jakarta.persistence.Table;
 @Table(name = "Types")
 public class Types {
 
-    @Id @Column(name = "Id_Types")
+    @Id @Column(name = "id")
     private int id;
-    @Column
+    @Column (name = "name_types")
     private String name;
 
     public Types() { }
