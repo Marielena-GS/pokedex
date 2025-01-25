@@ -64,6 +64,7 @@ public class DriverPokemon {
                     Set<Integer> moveIds = new LinkedHashSet<>();
                     Set<Integer> abilityIds = new LinkedHashSet<>();
                     Integer habitatId = null;
+                    List<Integer> evolutionIds = new ArrayList<>();
 
                     // Obtener los tipos del Pokémon
                     if (pokemonData.has("types")) {
@@ -75,12 +76,14 @@ public class DriverPokemon {
                                 .collect(Collectors.toSet()));
                     }
 
-                    // Obtener el ID del hábitat
+                    // Obtener el ID del hábitat y la cadena de evolución
                     if (pokemonData.has("species")) {
                         JSONObject species = pokemonData.getJSONObject("species");
                         String speciesUrl = species.getString("url");
                         JSONObject speciesData = obtenerDatosDeUrl(speciesUrl);
+
                         habitatId = obtenerHabitatId(speciesData);
+                        evolutionIds = obtenerEvolutionIds(speciesData);
                     }
 
                     // Obtener los IDs de las ubicaciones
@@ -168,12 +171,7 @@ public class DriverPokemon {
                     imprimirInformacionPokemon(nuevoPokemon.getId(), nuevoPokemon.getName(),
                             nuevoPokemon.getHeight(), nuevoPokemon.getWeight(), regionIds, typeIds, habitatId, locationIds, moveIds, abilityIds,
                             nuevoPokemon.getStats_hp(), nuevoPokemon.getStats_attack(), nuevoPokemon.getStats_defense(), nuevoPokemon.getStats_special_attack()
-                            , nuevoPokemon.getStats_special_defense(), nuevoPokemon.getStats_speed());
-
-                    // Incrementar el contador
-                    synchronized (this) {  // Sincronización para evitar problemas de concurrencia
-
-                    }
+                            , nuevoPokemon.getStats_special_defense(), nuevoPokemon.getStats_speed(), evolutionIds);
 
                     return null;
                 });
@@ -195,7 +193,7 @@ public class DriverPokemon {
     }
 
     private void imprimirInformacionPokemon(int id, String name, int height, int weight, Set<Integer> regionIds, Set<Integer> typeIds, Integer habitatId, Set<Integer> locationIds, Set<Integer> moveIds, Set<Integer> abilityIds,
-                                            double hp, double attack, double defense, double specialAttack, double specialDefense, double speed) {
+                                            double hp, double attack, double defense, double specialAttack, double specialDefense, double speed, List<Integer> evolutionIds) {
         System.out.println("Información básica del Pokémon:");
         System.out.println("ID: " + id);
         System.out.println("Nombre: " + name);
@@ -210,14 +208,13 @@ public class DriverPokemon {
 
         System.out.println("ID del hábitat: " + (habitatId != null ? habitatId : "No se encontró."));
 
-        //System.out.print("IDs de las ubicaciones: ");
-        //System.out.println(locationIds.isEmpty() ? "No se encontraron." : locationIds);
-
         System.out.print("IDs de los movimientos: ");
         System.out.println(moveIds.isEmpty() ? "No se encontraron." : moveIds);
 
         System.out.print("IDs de las habilidades: ");
         System.out.println(abilityIds.isEmpty() ? "No se encontraron." : abilityIds);
+
+        System.out.println("IDs de evolución: " + (evolutionIds.isEmpty() ? "No se encontraron." : evolutionIds));
 
         // Imprimir los stats de forma más detallada
         System.out.println("Stats:");
@@ -264,5 +261,35 @@ public class DriverPokemon {
             }
         }
         return null;
+    }
+
+    private List<Integer> obtenerEvolutionIds(JSONObject speciesData) {
+        List<Integer> evolutionIds = new ArrayList<>();
+        if (speciesData != null && speciesData.has("evolution_chain") && !speciesData.isNull("evolution_chain")) {
+            String evolutionChainUrl = speciesData.getJSONObject("evolution_chain").getString("url");
+            JSONObject evolutionChainData = obtenerDatosDeUrl(evolutionChainUrl);
+
+            if (evolutionChainData != null && evolutionChainData.has("chain")) {
+                JSONObject chain = evolutionChainData.getJSONObject("chain");
+                extraerIdsDeEvolucion(chain, evolutionIds);
+            }
+        }
+        return evolutionIds;
+    }
+
+    private void extraerIdsDeEvolucion(JSONObject chain, List<Integer> evolutionIds) {
+        if (chain.has("species")) {
+            JSONObject species = chain.getJSONObject("species");
+            if (species.has("url")) {
+                evolutionIds.add(extraerIdDesdeUrl(species.getString("url")));
+            }
+        }
+
+        if (chain.has("evolves_to")) {
+            JSONArray evolvesToArray = chain.getJSONArray("evolves_to");
+            for (int i = 0; i < evolvesToArray.length(); i++) {
+                extraerIdsDeEvolucion(evolvesToArray.getJSONObject(i), evolutionIds);
+            }
+        }
     }
 }
