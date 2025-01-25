@@ -3,13 +3,15 @@ package ec.edu.uce.pokedex.jpa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table (name = "Region")
 public class Region {
 
-    @Id @Column
+    @Id @Column (name = "id")
     private int id;
-    @Column
+    @Column (name = "name_region")
     private String name;
 
     public Region() { }

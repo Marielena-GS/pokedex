@@ -1,16 +1,15 @@
 package ec.edu.uce.pokedex.jpa;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
+@Table (name = "Types")
+@Access(AccessType.FIELD)
 public class Types {
 
-    @Id @Column
+    @Id @Column (name = "id")
     private int id;
-    @Column
+    @Column (name = "name_types")
     private String name;
 
     public Types() { }
