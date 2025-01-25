@@ -15,10 +15,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DriveAbility {
-
-    private int id;
-    private String name;
-
     public void ejecutar() {
         // Consultar los movimientos de Pokémon
         JSONObject abilityData = obtenerMoves();

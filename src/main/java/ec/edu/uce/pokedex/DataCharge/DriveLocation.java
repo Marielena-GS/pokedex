@@ -16,9 +16,6 @@ import java.util.stream.Stream;
 
 public class DriveLocation {
 
-        private int id;
-        private String name;
-
         public void ejecutar() {
             // Consultar los lugares de aparición de Pokémon
             JSONObject locationsData = obtenerLocations();

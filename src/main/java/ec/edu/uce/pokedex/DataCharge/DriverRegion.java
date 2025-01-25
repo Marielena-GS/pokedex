@@ -16,9 +16,6 @@ import java.util.stream.Stream;
 
 public class DriverRegion {
 
-    private int id;
-    private String name;
-
     public void ejecutar() {
         // Consultar los movimientos de Pokémon
         JSONObject regionData = obtenerRegion();
