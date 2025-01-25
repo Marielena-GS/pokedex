@@ -1,8 +1,16 @@
 package ec.edu.uce.pokedex.jpa;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
 public class Types {
 
+    @Id @Column
     private int id;
+    @Column
     private String name;
 
     public Types() { }
