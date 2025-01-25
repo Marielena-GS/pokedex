@@ -211,8 +211,8 @@ public class DriverPokemon {
 
         System.out.println("ID del hábitat: " + (habitatId != null ? habitatId : "No se encontró."));
 
-        System.out.print("IDs de las ubicaciones: ");
-        System.out.println(locationIds.isEmpty() ? "No se encontraron." : locationIds);
+        //System.out.print("IDs de las ubicaciones: ");
+        //System.out.println(locationIds.isEmpty() ? "No se encontraron." : locationIds);
 
         System.out.print("IDs de los movimientos: ");
         System.out.println(moveIds.isEmpty() ? "No se encontraron." : moveIds);
