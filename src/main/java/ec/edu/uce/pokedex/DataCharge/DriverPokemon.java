@@ -1,5 +1,6 @@
 package ec.edu.uce.pokedex.DataCharge;
 
+import ec.edu.uce.pokedex.jpa.Pokemon;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class DriverPokemon {
 
     public void ejecutar() {
         String allPokemonUrl = "https://pokeapi.co/api/v2/pokemon?limit=1304";
-
+        Pokemon nuevoPokemon = new Pokemon();
         // Obtener la lista de todos los Pokémon
         JSONObject allPokemonData = obtenerDatosDeUrl(allPokemonUrl);
 
@@ -39,10 +40,15 @@ public class DriverPokemon {
                 if (pokemonData == null) return;
 
                 // Obtener datos básicos del Pokémon
-                int pokemonId = pokemonData.getInt("id");
-                String pokemonName = pokemonData.getString("name");
-                int height = pokemonData.getInt("height");
-                int weight = pokemonData.getInt("weight");
+                nuevoPokemon.setId(pokemonData.getInt("id"));
+                nuevoPokemon.setName(pokemonData.getString("name"));
+                nuevoPokemon.setHeight(pokemonData.getInt("height"));
+                nuevoPokemon.setWeight(pokemonData.getInt("weight"));
+
+                //int pokemonId = pokemonData.getInt("id");
+                //String pokemonName = pokemonData.getString("name");
+                //int height = pokemonData.getInt("height");
+                //int weight = pokemonData.getInt("weight");
 
                 // Inicialización de sets y mapas
                 Set<Integer> regionIds = new LinkedHashSet<>();
@@ -50,8 +56,15 @@ public class DriverPokemon {
                 Set<Integer> locationIds = new LinkedHashSet<>();
                 Set<Integer> moveIds = new LinkedHashSet<>();
                 Set<Integer> abilityIds = new LinkedHashSet<>();
-                Map<String, Integer> stats = new LinkedHashMap<>();
                 Integer habitatId = null;
+
+                // Variables para los stats del Pokémon
+                int hp = 0;
+                int attack = 0;
+                int defense = 0;
+                int specialAttack = 0;
+                int specialDefense = 0;
+                int speed = 0;
 
                 // Obtener los tipos del Pokémon
                 if (pokemonData.has("types")) {
@@ -119,22 +132,87 @@ public class DriverPokemon {
                             .collect(Collectors.toSet()));
                 }
 
-                // Obtener los stats del Pokémon
+                // Obtener los stats del Pokémon y asignarlos a variables
                 if (pokemonData.has("stats")) {
-                    stats.putAll(pokemonData.getJSONArray("stats").toList().stream()
-                            .collect(Collectors.toMap(
-                                    statObj -> new JSONObject((Map<?, ?>) statObj).getJSONObject("stat").getString("name"),
-                                    statObj -> new JSONObject((Map<?, ?>) statObj).getInt("base_stat")
-                            )));
+                    JSONArray statsArray = pokemonData.getJSONArray("stats");
+                    for (int i = 0; i < statsArray.length(); i++) {
+                        JSONObject statObj = statsArray.getJSONObject(i);
+                        String statName = statObj.getJSONObject("stat").getString("name");
+                        int statValue = statObj.getInt("base_stat");
+
+                        switch (statName) {
+                            case "hp":
+                                nuevoPokemon.setStats_hp(statValue);
+                                break;
+                            case "attack":
+                                nuevoPokemon.setStats_attack(statValue);
+                                break;
+                            case "defense":
+                                nuevoPokemon.setStats_defense(statValue);
+                                break;
+                            case "special-attack":
+                                nuevoPokemon.setStats_special_attack(statValue);
+                                break;
+                            case "special-defense":
+                                nuevoPokemon.setStats_special_defense(statValue);
+                                break;
+                            case "speed":
+                                nuevoPokemon.setStats_speed(statValue);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                 }
 
                 // Imprimir la información del Pokémon
-                imprimirInformacionPokemon(pokemonId, pokemonName, height, weight, regionIds, typeIds, habitatId, locationIds, moveIds, abilityIds, stats);
+                imprimirInformacionPokemon(nuevoPokemon.getId(), nuevoPokemon.getName(),
+                        nuevoPokemon.getHeight(), nuevoPokemon.getWeight(), regionIds, typeIds, habitatId, locationIds, moveIds, abilityIds,
+                        nuevoPokemon.getStats_hp(), nuevoPokemon.getStats_attack(), nuevoPokemon.getStats_defense(), nuevoPokemon.getStats_special_attack()
+                        , nuevoPokemon.getStats_special_defense(), nuevoPokemon.getStats_speed());
             });
         } else {
             System.out.println("No se pudieron obtener los datos de los Pokémon.");
         }
     }
+
+    private void imprimirInformacionPokemon(int id, String name, int height, int weight, Set<Integer> regionIds, Set<Integer> typeIds, Integer habitatId, Set<Integer> locationIds, Set<Integer> moveIds, Set<Integer> abilityIds,
+                                            double hp, double attack, double defense, double specialAttack, double specialDefense, double speed) {
+        System.out.println("Información básica del Pokémon:");
+        System.out.println("ID: " + id);
+        System.out.println("Nombre: " + name);
+        System.out.println("Altura: " + height);
+        System.out.println("Peso: " + weight);
+
+        System.out.print("IDs de las regiones: ");
+        System.out.println(regionIds.isEmpty() ? "No se encontraron." : regionIds);
+
+        System.out.print("IDs de los tipos: ");
+        System.out.println(typeIds.isEmpty() ? "No se encontraron." : typeIds);
+
+        System.out.println("ID del hábitat: " + (habitatId != null ? habitatId : "No se encontró."));
+
+        System.out.print("IDs de las ubicaciones: ");
+        System.out.println(locationIds.isEmpty() ? "No se encontraron." : locationIds);
+
+        System.out.print("IDs de los movimientos: ");
+        System.out.println(moveIds.isEmpty() ? "No se encontraron." : moveIds);
+
+        System.out.print("IDs de las habilidades: ");
+        System.out.println(abilityIds.isEmpty() ? "No se encontraron." : abilityIds);
+
+        // Imprimir los stats de forma más detallada
+        System.out.println("Stats:");
+        System.out.println("HP: " + hp);
+        System.out.println("Ataque: " + attack);
+        System.out.println("Defensa: " + defense);
+        System.out.println("Ataque especial: " + specialAttack);
+        System.out.println("Defensa especial: " + specialDefense);
+        System.out.println("Velocidad: " + speed);
+
+        System.out.println("-----------------------------------");
+    }
+
 
     private JSONObject obtenerDatosDeUrl(String url) {
         try {
