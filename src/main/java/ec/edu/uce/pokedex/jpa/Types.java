@@ -6,9 +6,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "Types")
 public class Types {
 
-    @Id @Column
+    @Id @Column(name = "Id_Types")
     private int id;
     @Column
     private String name;

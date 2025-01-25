@@ -67,6 +67,21 @@ public class DriverPokemon {
                                     JSONObject region = locationData.getJSONObject("region");
                                     String regionName = region.getString("name");
                                     System.out.println("Región del Pokémon: " + regionName);
+
+                                    // Obtener la URL de la región
+                                    String regionUrl = region.getString("url");
+                                    System.out.println("URL de la región: " + regionUrl);
+
+                                    // Obtener los datos de la región
+                                    JSONObject regionData = obtenerDatosDeUrl(regionUrl);
+
+                                    if (regionData != null) {
+                                        // Obtener el id de la región
+                                        int regionId = regionData.getInt("id");
+                                        System.out.println("ID de la región: " + regionId);
+                                    } else {
+                                        System.out.println("No se pudo obtener los datos de la región.");
+                                    }
                                 } else {
                                     System.out.println("No se encontró la región en location.");
                                 }
@@ -101,8 +116,21 @@ public class DriverPokemon {
     private JSONArray obtenerDatosDeEncuentros(String url) {
         try {
             String jsonResponse = restTemplate.getForObject(url, String.class);
-            JSONObject jsonObject = new JSONObject(jsonResponse);
-            return jsonObject.getJSONArray("results"); // Devolver los resultados de los encuentros
+            System.out.println("Respuesta cruda de los encuentros: " + jsonResponse); // Depuración
+
+            // Intentar parsear como JSONObject primero
+            try {
+                JSONObject jsonObject = new JSONObject(jsonResponse);
+                return jsonObject.getJSONArray("results"); // Devolver los resultados de los encuentros
+            } catch (org.json.JSONException e) {
+                // Si no es un JSONObject válido, podría ser un JSONArray
+                try {
+                    return new JSONArray(jsonResponse); // Si la respuesta es un JSONArray directamente
+                } catch (org.json.JSONException ex) {
+                    System.out.println("Error al parsear como JSONArray: " + ex.getMessage());
+                    return null;
+                }
+            }
         } catch (Exception e) {
             System.out.println("Error al obtener los datos de los encuentros de la URL: " + url);
             e.printStackTrace();
