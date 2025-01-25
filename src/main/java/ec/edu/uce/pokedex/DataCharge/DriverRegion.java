@@ -1,6 +1,7 @@
 package ec.edu.uce.pokedex.DataCharge;
 
 import ec.edu.uce.pokedex.jpa.Move;
+import ec.edu.uce.pokedex.jpa.Region;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -11,10 +12,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DriverRegion {
+    private final ExecutorService executor;
+
+    public DriverRegion(){
+        this.executor = Executors.newFixedThreadPool(10);
+    }
 
     public void ejecutar() {
         // Consultar los movimientos de Pokémon
@@ -29,9 +37,10 @@ public class DriverRegion {
                     .collect(Collectors.toList());
 
             // Procesar en paralelo
-            regionList.stream().parallel()
-                    .map(regiones -> new Move(regionList.indexOf(regiones) + 1, regiones.optString("name")))
-                    .forEach(regio -> System.out.println("ID: " + regio.getId() + " - Tipo: " + regio.getName()));
+            regionList.stream().parallel().forEach(regions -> executor.execute(()->{
+                        Region newRegion = new Region(regionList.indexOf(regions) + 1,regions.optString("name"));
+                        System.out.println("ID: " + newRegion.getId() + " - Tipo: " + newRegion.getName());
+                    }));
 
         } else {
             System.out.println("No se pudo obtener información de las regiones.");

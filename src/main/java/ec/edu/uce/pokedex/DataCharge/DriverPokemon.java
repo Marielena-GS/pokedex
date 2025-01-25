@@ -15,7 +15,6 @@ public class DriverPokemon {
 
     private final RestTemplate restTemplate;
     private final ExecutorService executorService;
-    private int pokemonCount = 0;  // Contador de Pokémon procesados
 
     public DriverPokemon(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -173,9 +172,9 @@ public class DriverPokemon {
 
                     // Incrementar el contador
                     synchronized (this) {  // Sincronización para evitar problemas de concurrencia
-                        pokemonCount++;
+
                     }
-                    System.out.println("Pokémon procesado: " + pokemonCount);
+
                     return null;
                 });
             });

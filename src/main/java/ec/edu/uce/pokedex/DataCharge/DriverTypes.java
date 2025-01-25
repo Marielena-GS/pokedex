@@ -11,12 +11,18 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DriverTypes {
+    private final ExecutorService executorService;
 
-    public static void ejecutar() {
+    public DriverTypes() {
+        this.executorService = Executors.newFixedThreadPool(10);
+    }
+    public void ejecutar() {
         JSONObject typesData = obtenerTipos();
 
         if (typesData != null) {
@@ -29,9 +35,10 @@ public class DriverTypes {
                     .collect(Collectors.toList());
 
             // Procesar en paralelo
-            typeList.stream().parallel()
-                    .map(type -> new Types(typeList.indexOf(type) + 1, type.optString("name")))
-                    .forEach(tipo -> System.out.println("ID: " + tipo.getId() + " - Tipo: " + tipo.getName()));
+            typeList.stream().parallel().forEach(tipo->executorService.execute(()->{
+                Types newType = new Types(typeList.indexOf(tipo) + 1,tipo.optString("name"));
+                        System.out.println("ID: " + newType.getId() + " - Tipo: " + newType.getName());
+                    }));
 
         } else {
             System.out.println("No se pudo obtener información de los tipos.");
