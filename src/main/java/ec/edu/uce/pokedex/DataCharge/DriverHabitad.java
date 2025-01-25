@@ -1,5 +1,6 @@
 package ec.edu.uce.pokedex.DataCharge;
 
+import ec.edu.uce.pokedex.jpa.Habitat;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -8,6 +9,10 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DriverHabitad {
 
@@ -21,15 +26,15 @@ public class DriverHabitad {
         if (habitatData != null) {
             // Extraer y mostrar la información de los hábitats
             JSONArray habitats = habitatData.getJSONArray("results");
-            for (int i = 0; i < habitats.length(); i++) {
-                JSONObject habitat = habitats.getJSONObject(i);
-                this.id = i;  // Asignar un ID secuencial basado en el índice
-                this.name = habitat.getString("name");
+            List<JSONObject> habitadList = Stream.iterate(0,i->i+1)
+                    .limit(habitats.length())
+                    .map(habitats::getJSONObject)
+                    .collect(Collectors.toList());
 
-                // Imprimir la información del hábitat
-                System.out.println("Habitat ID: " + this.id);
-                System.out.println("Nombre del hábitat: " + this.name);
-            }
+            habitadList.stream().parallel().
+                    map(habitads -> new Habitat(habitadList.indexOf(habitads)+1,habitads.optString("name")))
+                    .forEach(habitad->System.out.println("ID: " + habitad.getId() + " - Tipo: " + habitad.getName()));
+
         } else {
             System.out.println("No se pudo obtener información de los hábitats.");
         }

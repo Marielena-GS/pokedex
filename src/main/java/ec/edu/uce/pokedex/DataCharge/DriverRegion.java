@@ -1,5 +1,6 @@
 package ec.edu.uce.pokedex.DataCharge;
 
+import ec.edu.uce.pokedex.jpa.Move;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -9,6 +10,10 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class DriverRegion {
 
     private int id;
@@ -16,26 +21,27 @@ public class DriverRegion {
 
     public void ejecutar() {
         // Consultar los movimientos de Pokémon
-        JSONObject movesData = obtenerMoves();
+        JSONObject regionData = obtenerRegion();
 
-        if (movesData != null) {
+        if (regionData != null) {
             // Extraer y mostrar la información de los movimientos
-            JSONArray moves = movesData.getJSONArray("results");
-            for (int i = 0; i < moves.length(); i++) {
-                JSONObject move = moves.getJSONObject(i);
-                this.id = i;  // Asignar un ID secuencial basado en el índice
-                this.name = move.getString("name");
+            JSONArray region = regionData.getJSONArray("results");
+            List<JSONObject> regionList = Stream.iterate(0,i->i+1)
+                    .limit(region.length())
+                    .map(region::getJSONObject)
+                    .collect(Collectors.toList());
 
-                // Imprimir la información del movimiento
-                System.out.println("Move ID: " + this.id);
-                System.out.println("Region: " + this.name);
-            }
+            // Procesar en paralelo
+            regionList.stream().parallel()
+                    .map(regiones -> new Move(regionList.indexOf(regiones) + 1, regiones.optString("name")))
+                    .forEach(regio -> System.out.println("ID: " + regio.getId() + " - Tipo: " + regio.getName()));
+
         } else {
-            System.out.println("No se pudo obtener información de los movimientos.");
+            System.out.println("No se pudo obtener información de las regiones.");
         }
     }
 
-    public JSONObject obtenerMoves() {
+    public JSONObject obtenerRegion() {
         return obtenerDatosDeUrl("https://pokeapi.co/api/v2/region");
     }
 
