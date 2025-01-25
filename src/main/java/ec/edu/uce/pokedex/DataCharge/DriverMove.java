@@ -11,11 +11,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DriverMove {
+    private final ExecutorService executorService;
 
+    public DriverMove(){
+        this.executorService = Executors.newFixedThreadPool(10);
+    }
 
     public void ejecutar() {
         // Consultar los movimientos de Pokémon
@@ -28,10 +34,10 @@ public class DriverMove {
                     .limit(moves.length())
                     .map(moves::getJSONObject)
                     .collect(Collectors.toList());
-            moveList.stream().parallel()
-                    .map(move->new Move(moveList.indexOf(move)+1, move.optString("name")))
-                    .forEach(movimiento->System.out.println("ID: " + movimiento.getId() + " - Tipo: " + movimiento.getName()));
-
+            moveList.stream().parallel().forEach(mov -> executorService.execute(()->{
+                Move newMove = new Move(moveList.indexOf(mov)+1,mov.optString("name"));
+                        System.out.println("ID: " + newMove.getId() + " - Tipo: " + newMove.getName());
+            }));
         } else {
             System.out.println("No se pudo obtener información de los movimientos.");
         }

@@ -11,10 +11,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DriverHabitad {
+    private final ExecutorService executorService;
+    public DriverHabitad() {
+        this.executorService = Executors.newFixedThreadPool(10);
+    }
 
 
     public void ejecutar() {
@@ -29,9 +35,10 @@ public class DriverHabitad {
                     .map(habitats::getJSONObject)
                     .collect(Collectors.toList());
 
-            habitadList.stream().parallel().
-                    map(habitads -> new Habitat(habitadList.indexOf(habitads)+1,habitads.optString("name")))
-                    .forEach(habitad->System.out.println("ID: " + habitad.getId() + " - Tipo: " + habitad.getName()));
+            habitadList.stream().parallel().forEach(habita -> executorService.execute(()->{
+                Habitat newHabitat = new Habitat(habitadList.indexOf(habita)+1,habita.optString("name"));
+                System.out.println("ID: " + newHabitat.getId() + " - Nombre: " + newHabitat.getName());
+            }));
 
         } else {
             System.out.println("No se pudo obtener información de los hábitats.");

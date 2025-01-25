@@ -11,27 +11,42 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DriveAbility {
+    private final ExecutorService executorService;
+
+    public DriveAbility() {
+        // Crear un pool de hilos con un número fijo de hilos
+        this.executorService = Executors.newFixedThreadPool(10); // Puedes ajustar el número de hilos
+    }
+
     public void ejecutar() {
         // Consultar los movimientos de Pokémon
         JSONObject abilityData = obtenerMoves();
 
         if (abilityData != null) {
-            // Extraer y mostrar la información de los movimientos
+            // Extraer y mostrar la información de las habilidades
             JSONArray ability = abilityData.getJSONArray("results");
-            List<JSONObject> abilityList = Stream.iterate(0,i->i+1)
+            List<JSONObject> abilityList = Stream.iterate(0, i -> i + 1)
                     .limit(ability.length())
                     .map(ability::getJSONObject)
                     .collect(Collectors.toList());
-            abilityList.stream().parallel()
-                    .map(abilitys -> new Abilities(abilityList.indexOf(abilitys)+1,abilitys.optString("name")))
-                    .forEach(abiliti -> System.out.println("ID: " + abiliti.getId() + " - Tipo: " + abiliti.getName()));
+
+            // Ejecutar cada tarea en un hilo del pool
+            abilityList.stream().parallel().forEach(abilitys -> executorService.execute(() -> {
+                // Obtener el nombre y ID de la habilidad
+                // Crear y mostrar la habilidad
+                Abilities abiliti = new Abilities(abilityList.indexOf(abilitys) + 1, abilitys.optString("name"));
+
+                System.out.println("ID: " + abiliti.getId() + " - Nombre: " + abiliti.getName());
+            }));
 
         } else {
-            System.out.println("No se pudo obtener información de los movimientos.");
+            System.out.println("No se pudo obtener información de las habilidades.");
         }
     }
 
@@ -51,5 +66,10 @@ public class DriveAbility {
             e.printStackTrace();
             return null;
         }
+    }
+
+    // Cerrar el pool de hilos al finalizar
+    public void shutdown() {
+        executorService.shutdown();
     }
 }
