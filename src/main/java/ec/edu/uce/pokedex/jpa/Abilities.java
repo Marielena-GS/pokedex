@@ -1,6 +1,12 @@
 package ec.edu.uce.pokedex.jpa;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
 public class Abilities {
+
+    @Id
     private int id;
     private String name;
 
