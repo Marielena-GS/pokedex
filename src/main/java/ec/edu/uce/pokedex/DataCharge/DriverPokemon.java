@@ -1,169 +1,112 @@
 package ec.edu.uce.pokedex.DataCharge;
 
-import ec.edu.uce.pokedex.jpa.Pokemon;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+@Service
 public class DriverPokemon {
 
+    private final RestTemplate restTemplate;
+
+    public DriverPokemon(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     public void ejecutar() {
-        // Obtenemos la lista de Pokémon
-        JSONObject listOfPokemons = obtenerPokemonLista();
+        int pokemonId = 25; // Cambia el ID si es necesario
+        String pokemonUrl = "https://pokeapi.co/api/v2/pokemon/" + pokemonId + "/";
 
-        if (listOfPokemons != null) {
-            // Extraemos el array "results", que contiene los Pokémon
-            JSONArray results = listOfPokemons.getJSONArray("results");
+        // Obtener los datos básicos del Pokémon
+        JSONObject pokemonData = obtenerDatosDeUrl(pokemonUrl);
 
-            // Iteramos sobre los resultados y obtenemos detalles de cada Pokémon
-            for (int i = 0; i < results.length(); i++) {
-                Pokemon pokemon = new Pokemon();
-                JSONObject pokemonInfo = results.getJSONObject(i);
-                String pokemonUrl = pokemonInfo.getString("url");
+        if (pokemonData != null) {
+            String pokemonName = pokemonData.getString("name");
+            int height = pokemonData.getInt("height");
+            int weight = pokemonData.getInt("weight");
 
-                // Obtener los detalles de cada Pokémon
-                JSONObject pokemonData = obtenerDatosDeUrl(pokemonUrl);
+            System.out.println("Información básica del Pokémon:");
+            System.out.println("Nombre: " + pokemonName);
+            System.out.println("Altura: " + height);
+            System.out.println("Peso: " + weight);
 
-                // Aquí procesas la información detallada del Pokémon
-                if (pokemonData != null) {
-                    // Información básica
-                    pokemon.setId(pokemonData.getInt("id"));
-                    pokemon.setName(pokemonData.getString("name"));
-                    pokemon.setHeight(pokemonData.getInt("height"));
-                    pokemon.setWeight(pokemonData.getInt("weight"));
+            // Obtener la URL de los encuentros
+            String locationAreaUrl = pokemonData.getString("location_area_encounters");
+            System.out.println("URL de los encuentros: " + locationAreaUrl);
 
-                    // Estadísticas
-                    JSONArray stats = pokemonData.getJSONArray("stats");
+            // Realizar la solicitud para obtener los datos de los encuentros
+            JSONArray locationAreaData = obtenerDatosDeEncuentros(locationAreaUrl);
 
-                    // Convertimos el array de stats a una lista utilizando Streams
-                    List<JSONObject> statList = Stream.iterate(0, j -> j + 1)
-                            .limit(stats.length())
-                            .map(stats::getJSONObject)
-                            .collect(Collectors.toList());
-                    // Procesamos los stats y asignamos los valores correspondientes
-                    statList.stream().parallel()
-                            .map(stat -> {
-                                String statName = stat.getJSONObject("stat").getString("name");
-                                int baseStat = stat.getInt("base_stat");
-                                return new StatInfo(statName, baseStat);
-                            })
-                            .forEach(statInfo -> {
-                                switch (statInfo.getName()) {
-                                    case "hp":
-                                        pokemon.setStats_hp(statInfo.getBaseStat());
-                                        break;
-                                    case "attack":
-                                        pokemon.setStats_attack(statInfo.getBaseStat());
-                                        break;
-                                    case "defense":
-                                        pokemon.setStats_defense(statInfo.getBaseStat());
-                                        break;
-                                    case "special-attack":
-                                        pokemon.setStats_special_attack(statInfo.getBaseStat());
-                                        break;
-                                    case "special-defense":
-                                        pokemon.setStats_special_defense(statInfo.getBaseStat());
-                                        break;
-                                    case "speed":
-                                        pokemon.setStats_speed(statInfo.getBaseStat());
-                                        break;
-                                    case "accuracy":
-                                        pokemon.setStats_accuracy(statInfo.getBaseStat());
-                                        break;
-                                    case "evasion":
-                                        pokemon.setStats_evasion(statInfo.getBaseStat());
-                                        break;
+            if (locationAreaData != null) {
+                // Procesar los encuentros
+                for (int i = 0; i < locationAreaData.length(); i++) {
+                    JSONObject encounter = locationAreaData.getJSONObject(i);
+                    JSONObject locationArea = encounter.getJSONObject("location_area");
+
+                    // Obtener la URL de la ubicación
+                    String locationAreaUrlFromEncounter = locationArea.getString("url");
+                    System.out.println("URL de location-area: " + locationAreaUrlFromEncounter);
+
+                    // Realizar la consulta de la location-area
+                    JSONObject locationAreaDataResponse = obtenerDatosDeUrl(locationAreaUrlFromEncounter);
+
+                    if (locationAreaDataResponse != null) {
+                        // Verificar si la respuesta es un objeto JSON y proceder
+                        if (locationAreaDataResponse.has("location")) {
+                            JSONObject location = locationAreaDataResponse.getJSONObject("location");
+                            String locationUrl = location.getString("url");
+                            System.out.println("URL de location: " + locationUrl);
+
+                            // Realizar la consulta de la location
+                            JSONObject locationData = obtenerDatosDeUrl(locationUrl);
+
+                            if (locationData != null) {
+                                // Verificar si la respuesta contiene la región
+                                if (locationData.has("region")) {
+                                    JSONObject region = locationData.getJSONObject("region");
+                                    String regionName = region.getString("name");
+                                    System.out.println("Región del Pokémon: " + regionName);
+                                } else {
+                                    System.out.println("No se encontró la región en location.");
                                 }
-                            });
-
-                    // Obtener los tipos de Pokémon
-                    JSONArray types = pokemonData.getJSONArray("types");
-                    StringBuilder typeIds = new StringBuilder();
-
-                    // Recorrer el arreglo de tipos y hacer una solicitud adicional para obtener el ID
-                    for (int j = 0; j < types.length(); j++) {
-                        JSONObject typeInfo = types.getJSONObject(j);
-                        String typeUrl = typeInfo.getJSONObject("type").getString("url");
-
-                        // Obtener los detalles del tipo a partir de la URL
-                        JSONObject typeData = obtenerDatosDeUrl(typeUrl);
-
-                        if (typeData != null && typeData.has("id")) {
-                            int typeId = typeData.getInt("id");
-                            typeIds.append(typeId).append(" "); // Concatenamos los IDs de los tipos
+                            }
                         } else {
-                            System.out.println("ID no encontrado para el tipo con URL: " + typeUrl);
+                            System.out.println("No se encontró el campo 'location' en la respuesta de location-area.");
                         }
+                    } else {
+                        System.out.println("No se pudo obtener los datos de la URL de location-area.");
                     }
-
-                    // Imprimir información del Pokémon
-                    System.out.println("Información del Pokémon:");
-                    System.out.println("ID: " + pokemon.getId());
-                    System.out.println("Nombre: " + pokemon.getName());
-                    System.out.println("Altura: " + pokemon.getHeight());
-                    System.out.println("Peso: " + pokemon.getWeight());
-                    System.out.println("HP: " + pokemon.getStats_hp());
-                    System.out.println("Ataque: " + pokemon.getStats_attack());
-                    System.out.println("Defensa: " + pokemon.getStats_defense());
-                    System.out.println("Ataque Especial: " + pokemon.getStats_special_attack());
-                    System.out.println("Defensa Especial: " + pokemon.getStats_special_defense());
-                    System.out.println("Velocidad: " + pokemon.getStats_speed());
-                    System.out.println("Precisión: " + pokemon.getStats_accuracy());
-                    System.out.println("Evasión: " + pokemon.getStats_evasion());
-                    System.out.println("Tipos (IDs): " + typeIds.toString().trim());  // Mostrar los IDs de los tipos
                 }
+            } else {
+                System.out.println("No se pudieron obtener los datos de los encuentros.");
             }
         } else {
-            System.out.println("No se pudo obtener la lista de Pokémon.");
+            System.out.println("No se pudieron obtener los datos del Pokémon.");
         }
     }
 
-    // Clase auxiliar para representar cada estadística de Pokémon
-    public static class StatInfo {
-        private final String name;
-        private final int baseStat;
-
-        public StatInfo(String name, int baseStat) {
-            this.name = name;
-            this.baseStat = baseStat;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getBaseStat() {
-            return baseStat;
-        }
-    }
-
-    // Obtener la lista de Pokémon
-    public JSONObject obtenerPokemonLista() {
-        return obtenerDatosDeUrl("https://pokeapi.co/api/v2/pokemon?limit=1304");
-    }
-
-    // Obtener los detalles de un Pokémon a partir de la URL
-    public JSONObject obtenerDatosDeUrl(String url) {
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(url);
-            try (CloseableHttpResponse response = client.execute(request)) {
-                HttpEntity entity = response.getEntity();
-                String jsonResponse = EntityUtils.toString(entity);
-                return new JSONObject(jsonResponse);
-            }
+    private JSONObject obtenerDatosDeUrl(String url) {
+        try {
+            String jsonResponse = restTemplate.getForObject(url, String.class);
+            return new JSONObject(jsonResponse); // Convierte la respuesta a JSONObject
         } catch (Exception e) {
+            System.out.println("Error al obtener los datos de la URL: " + url);
             e.printStackTrace();
             return null;
         }
     }
 
+    // Método que maneja la URL de los encuentros de location_area
+    private JSONArray obtenerDatosDeEncuentros(String url) {
+        try {
+            String jsonResponse = restTemplate.getForObject(url, String.class);
+            JSONObject jsonObject = new JSONObject(jsonResponse);
+            return jsonObject.getJSONArray("results"); // Devolver los resultados de los encuentros
+        } catch (Exception e) {
+            System.out.println("Error al obtener los datos de los encuentros de la URL: " + url);
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
