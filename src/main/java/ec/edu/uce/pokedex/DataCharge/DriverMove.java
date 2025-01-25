@@ -16,16 +16,6 @@ import java.util.stream.Stream;
 
 public class DriverMove {
 
-    private int id;
-    private String name;
-
-    public DriverMove(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public DriverMove() {
-    }
 
     public void ejecutar() {
         // Consultar los movimientos de Pokémon

@@ -16,19 +16,6 @@ import java.util.stream.Stream;
 
 public class DriverPokemon {
 
-    private int id;
-    private String name;
-    private int height;
-    private int weight;
-    private double stats_hp;
-    private double stats_attack;
-    private double stats_defense;
-    private double stats_special_attack;
-    private double stats_special_defense;
-    private double stats_speed;
-    private double stats_accuracy;
-    private double stats_evasion;
-
     public void ejecutar() {
         // Obtenemos la lista de Pokémon
         JSONObject listOfPokemons = obtenerPokemonLista();
@@ -98,6 +85,26 @@ public class DriverPokemon {
                                 }
                             });
 
+                    // Obtener los tipos de Pokémon
+                    JSONArray types = pokemonData.getJSONArray("types");
+                    StringBuilder typeIds = new StringBuilder();
+
+                    // Recorrer el arreglo de tipos y hacer una solicitud adicional para obtener el ID
+                    for (int j = 0; j < types.length(); j++) {
+                        JSONObject typeInfo = types.getJSONObject(j);
+                        String typeUrl = typeInfo.getJSONObject("type").getString("url");
+
+                        // Obtener los detalles del tipo a partir de la URL
+                        JSONObject typeData = obtenerDatosDeUrl(typeUrl);
+
+                        if (typeData != null && typeData.has("id")) {
+                            int typeId = typeData.getInt("id");
+                            typeIds.append(typeId).append(" "); // Concatenamos los IDs de los tipos
+                        } else {
+                            System.out.println("ID no encontrado para el tipo con URL: " + typeUrl);
+                        }
+                    }
+
                     // Imprimir información del Pokémon
                     System.out.println("Información del Pokémon:");
                     System.out.println("ID: " + pokemon.getId());
@@ -112,6 +119,7 @@ public class DriverPokemon {
                     System.out.println("Velocidad: " + pokemon.getStats_speed());
                     System.out.println("Precisión: " + pokemon.getStats_accuracy());
                     System.out.println("Evasión: " + pokemon.getStats_evasion());
+                    System.out.println("Tipos (IDs): " + typeIds.toString().trim());  // Mostrar los IDs de los tipos
                 }
             }
         } else {

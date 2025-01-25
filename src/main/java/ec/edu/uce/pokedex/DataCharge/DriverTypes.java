@@ -16,10 +16,6 @@ import java.util.stream.Stream;
 
 public class DriverTypes {
 
-    private int id;
-    private String name;
-
-
     public static void ejecutar() {
         JSONObject typesData = obtenerTipos();
 

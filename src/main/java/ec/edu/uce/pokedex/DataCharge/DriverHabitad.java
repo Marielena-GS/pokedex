@@ -16,8 +16,6 @@ import java.util.stream.Stream;
 
 public class DriverHabitad {
 
-    private int id;
-    private String name;
 
     public void ejecutar() {
         // Consultar los hábitats de Pokémon
