@@ -1,8 +1,10 @@
 package ec.edu.uce.pokedex.DataCharge;
 
 import ec.edu.uce.pokedex.jpa.Pokemon;
+import ec.edu.uce.pokedex.repositories.PokemonRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,6 +17,8 @@ public class DriverPokemon {
 
     private final RestTemplate restTemplate;
     private final ExecutorService executorService;
+    @Autowired
+    private PokemonRepository pokemonRepository;
 
     public DriverPokemon(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -166,12 +170,8 @@ public class DriverPokemon {
                             }
                         }
                     }
-
-                    // Imprimir la información del Pokémon
-                    imprimirInformacionPokemon(nuevoPokemon.getId(), nuevoPokemon.getName(),
-                            nuevoPokemon.getHeight(), nuevoPokemon.getWeight(), regionIds, typeIds, habitatId, locationIds, moveIds, abilityIds,
-                            nuevoPokemon.getStats_hp(), nuevoPokemon.getStats_attack(), nuevoPokemon.getStats_defense(), nuevoPokemon.getStats_special_attack()
-                            , nuevoPokemon.getStats_special_defense(), nuevoPokemon.getStats_speed(), evolutionIds);
+                    nuevoPokemon.setEnvoles(evolutionIds);
+                   pokemonRepository.save(nuevoPokemon);
 
                     return null;
                 });
@@ -192,41 +192,6 @@ public class DriverPokemon {
         }
     }
 
-    private void imprimirInformacionPokemon(int id, String name, int height, int weight, Set<Integer> regionIds, Set<Integer> typeIds, Integer habitatId, Set<Integer> locationIds, Set<Integer> moveIds, Set<Integer> abilityIds,
-                                            double hp, double attack, double defense, double specialAttack, double specialDefense, double speed, List<Integer> evolutionIds) {
-        System.out.println("Información básica del Pokémon:");
-        System.out.println("ID: " + id);
-        System.out.println("Nombre: " + name);
-        System.out.println("Altura: " + height);
-        System.out.println("Peso: " + weight);
-
-        System.out.print("IDs de las regiones: ");
-        System.out.println(regionIds.isEmpty() ? "No se encontraron." : regionIds);
-
-        System.out.print("IDs de los tipos: ");
-        System.out.println(typeIds.isEmpty() ? "No se encontraron." : typeIds);
-
-        System.out.println("ID del hábitat: " + (habitatId != null ? habitatId : "No se encontró."));
-
-        System.out.print("IDs de los movimientos: ");
-        System.out.println(moveIds.isEmpty() ? "No se encontraron." : moveIds);
-
-        System.out.print("IDs de las habilidades: ");
-        System.out.println(abilityIds.isEmpty() ? "No se encontraron." : abilityIds);
-
-        System.out.println("IDs de evolución: " + (evolutionIds.isEmpty() ? "No se encontraron." : evolutionIds));
-
-        // Imprimir los stats de forma más detallada
-        System.out.println("Stats:");
-        System.out.println("HP: " + hp);
-        System.out.println("Ataque: " + attack);
-        System.out.println("Defensa: " + defense);
-        System.out.println("Ataque especial: " + specialAttack);
-        System.out.println("Defensa especial: " + specialDefense);
-        System.out.println("Velocidad: " + speed);
-
-        System.out.println("-----------------------------------");
-    }
 
     private JSONObject obtenerDatosDeUrl(String url) {
         try {

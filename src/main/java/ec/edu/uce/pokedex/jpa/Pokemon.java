@@ -1,36 +1,41 @@
 package ec.edu.uce.pokedex.jpa;
 
+import jakarta.persistence.*;
+
+import java.util.List;
+
+@Entity
+@Table(name = "Pokemon")
 public class Pokemon {
 
+    @Id
+    @Column(name = "id")
     private int id;
+    @Column(name = "pokemon_name")
     private String name;
+    @Column(name = "pokemon_heigth")
     private int height;
+    @Column(name = "pokemon_weight")
     private int weight;
+    @Column(name = "pokemon_stat_hp")
     private double stats_hp;
+    @Column(name = "pokemon_stat_attack")
     private double stats_attack;
+    @Column(name = "pokemon_stat_defense")
     private double stats_defense;
+    @Column(name = "pokemon_stat_special_attack")
     private double stats_special_attack;
+    @Column(name = "pokemon_special_defense")
     private double stats_special_defense;
+    @Column(name = "pokemon_stat_speed")
     private double stats_speed;
+    @Column(name = "pokemon_stat_accuracy")
     private double stats_accuracy;
+    @Column(name = "pokemon_stat_evasion")
     private double stats_evasion;
-
-    public Pokemon() { }
-
-    public Pokemon(int id, String name, int height, int weight, double stats_hp, double stats_attack, double stats_defense, double stats_special_attack, double stats_special_defense, double stats_speed, double stats_accuracy, double stats_evasion) {
-        this.id = id;
-        this.name = name;
-        this.height = height;
-        this.weight = weight;
-        this.stats_hp = stats_hp;
-        this.stats_attack = stats_attack;
-        this.stats_defense = stats_defense;
-        this.stats_special_attack = stats_special_attack;
-        this.stats_special_defense = stats_special_defense;
-        this.stats_speed = stats_speed;
-        this.stats_accuracy = stats_accuracy;
-        this.stats_evasion = stats_evasion;
-    }
+    @ElementCollection
+    @Column(name = "pokemon_envoles")
+    private List<Integer> envoles;
 
     public int getId() {
         return id;
@@ -126,5 +131,32 @@ public class Pokemon {
 
     public void setStats_evasion(double stats_evasion) {
         this.stats_evasion = stats_evasion;
+    }
+
+    public List<Integer> getEnvoles() {
+        return envoles;
+    }
+
+    public void setEnvoles(List<Integer> envoles) {
+        this.envoles = envoles;
+    }
+
+    public Pokemon() {
+    }
+
+    public Pokemon(int id, String name, int height, int weight, double stats_hp, double stats_attack, double stats_defense, double stats_special_attack, double stats_special_defense, double stats_speed, double stats_accuracy, double stats_evasion, List<Integer> envoles) {
+        this.id = id;
+        this.name = name;
+        this.height = height;
+        this.weight = weight;
+        this.stats_hp = stats_hp;
+        this.stats_attack = stats_attack;
+        this.stats_defense = stats_defense;
+        this.stats_special_attack = stats_special_attack;
+        this.stats_special_defense = stats_special_defense;
+        this.stats_speed = stats_speed;
+        this.stats_accuracy = stats_accuracy;
+        this.stats_evasion = stats_evasion;
+        this.envoles = envoles;
     }
 }

@@ -16,7 +16,7 @@ public class PokedexApiApplication implements CommandLineRunner {
 
 	// Autowired para inyectar DriverPokemon
 	@Autowired
-	private DriverPokemon pokedexService;
+	private DriverPokemon driverPokemon;
 
 	@Autowired
 	private DriveAbility driverAbilityService;
@@ -42,15 +42,15 @@ public class PokedexApiApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
-		driverTypesService.ejecutar();
-		driverRegionService.ejecutar();
-		driverAbilityService.ejecutar();
-		driverHabitadService.ejecutar();
-		driverMoveService.ejecutar();
-
+		//driverTypesService.ejecutar();
+		//driverRegionService.ejecutar();
+		//driverAbilityService.ejecutar();
+		//driverHabitadService.ejecutar();
+		//driverMoveService.ejecutar();
+		driverPokemon.ejecutar();
 
 		//Llamar al método ejecutar sin necesidad de crear una nueva instancia de DriverPokemon
-		//pokedexService.ejecutar();
+
 		//new Inicio();
 	}
 }
