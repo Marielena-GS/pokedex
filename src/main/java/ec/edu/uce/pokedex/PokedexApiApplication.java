@@ -1,6 +1,7 @@
 package ec.edu.uce.pokedex;
 
 import ec.edu.uce.pokedex.DataCharge.*;
+import ec.edu.uce.pokedex.Grafica.Inicio;
 import ec.edu.uce.pokedex.jpa.Types;
 import ec.edu.uce.pokedex.repositories.TypesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,6 @@ public class PokedexApiApplication implements CommandLineRunner {
 		//driverMoveService.ejecutar();
 
 		driverPokemon.ejecutar();
-
-
 
 		//Llamar al método ejecutar sin necesidad de crear una nueva instancia de DriverPokemon
 
