@@ -50,7 +50,7 @@ public class DriverHabitad {
 
             habitadList.stream().parallel().forEach(habita -> executorService.execute(()->{
                 Habitat newHabitat = new Habitat(habitadList.indexOf(habita)+1,habita.optString("name"));
-                System.out.println("ID: " + newHabitat.getId() + " - Nombre: " + newHabitat.getName());
+                habitatRepository.save(newHabitat);
             }));
 
         } else {

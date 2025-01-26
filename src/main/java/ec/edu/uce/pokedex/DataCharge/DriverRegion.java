@@ -51,7 +51,7 @@ public class DriverRegion {
             // Procesar en paralelo
             regionList.stream().parallel().forEach(regions -> executor.execute(()->{
                         Region newRegion = new Region(regionList.indexOf(regions) + 1,regions.optString("name"));
-                        System.out.println("ID: " + newRegion.getId() + " - Tipo: " + newRegion.getName());
+                        regionRepository.save(newRegion);
                     }));
 
         } else {

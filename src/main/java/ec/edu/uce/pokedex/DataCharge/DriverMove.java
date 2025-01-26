@@ -48,7 +48,7 @@ public class DriverMove {
                     .collect(Collectors.toList());
             moveList.stream().parallel().forEach(mov -> executorService.execute(()->{
                 Move newMove = new Move(moveList.indexOf(mov)+1,mov.optString("name"));
-                        System.out.println("ID: " + newMove.getId() + " - Tipo: " + newMove.getName());
+                        moveRepository.save(newMove);
             }));
         } else {
             System.out.println("No se pudo obtener información de los movimientos.");
