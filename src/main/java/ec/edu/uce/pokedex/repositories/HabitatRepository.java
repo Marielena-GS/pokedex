@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface HabitatRepository extends JpaRepository<Habitat, Integer> {
-    Habitat findByHabitatId(int id);
+    Habitat findById(int id);
 }

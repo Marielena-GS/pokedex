@@ -1,6 +1,7 @@
 package ec.edu.uce.pokedex.DataCharge;
 
 import ec.edu.uce.pokedex.jpa.Habitat;
+import ec.edu.uce.pokedex.repositories.HabitatRepository;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -9,15 +10,27 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+@Service
 public class DriverHabitad {
     private final ExecutorService executorService;
+
+    @Autowired
+    private HabitatRepository habitatRepository;
+
+    public void save(Habitat habitat)
+    {
+        habitatRepository.save(habitat);
+        habitatRepository.findById(habitat.getId());
+    }
+
     public DriverHabitad() {
         this.executorService = Executors.newFixedThreadPool(10);
     }

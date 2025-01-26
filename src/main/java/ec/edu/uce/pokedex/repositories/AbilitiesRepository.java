@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AbilitiesRepository extends JpaRepository<Abilities, Integer> {
-    Abilities findByAbilitiesId(int id);
+    Abilities findById(int id);
 }

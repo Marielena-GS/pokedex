@@ -1,6 +1,7 @@
 package ec.edu.uce.pokedex.DataCharge;
 
 import ec.edu.uce.pokedex.jpa.Abilities;
+import ec.edu.uce.pokedex.repositories.AbilitiesRepository;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -9,15 +10,26 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+@Service
 public class DriveAbility {
     private final ExecutorService executorService;
+
+    @Autowired
+    private AbilitiesRepository abilitiesRepository;
+
+    public void save(Abilities abilities)
+    {
+        abilitiesRepository.save(abilities);
+        abilitiesRepository.findById(abilities.getId());
+    }
 
     public DriveAbility() {
         // Crear un pool de hilos con un número fijo de hilos
