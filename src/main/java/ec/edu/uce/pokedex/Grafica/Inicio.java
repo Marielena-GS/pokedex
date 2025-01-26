@@ -2,175 +2,205 @@ package ec.edu.uce.pokedex.Grafica;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.util.concurrent.*;
 
 public class Inicio extends JFrame {
 
-    private JButton buttonNext;
-    private JButton buttonBack;
-    private JPanel imagePanel; // Panel para contener las 8 imágenes
-    private int currentIndex = 1; // Índice inicial (1 para empezar con la primera imagen)
-    private final int totalImages = 1205; // Total de imágenes disponibles
+    private JTextField searchField;
+    private JButton searchButton;
+    private JButton nextButton;
+    private JButton backButton;
+    private JPanel imagePanel;
+    private JPanel paginationPanel;
+    private int currentPage = 1;
+    private final int pageSize = 8;
+    private final ExecutorService executor = Executors.newFixedThreadPool(4);
 
     public Inicio() {
-        setTitle("Inicio");
-        setSize(600, 600); // Ajustado para que quepan 8 imágenes
-        setLocationRelativeTo(null);
+        setTitle("Pokédex");
+        setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // Crear un panel para contener las imágenes
-        imagePanel = new JPanel();
-        imagePanel.setLayout(new GridLayout(2, 4, 10, 10)); // 2 filas y 4 columnas
-        loadImages(); // Cargar las primeras 8 imágenes
-
-        // Crear el botón para avanzar a la siguiente serie de imágenes
-        buttonNext = new JButton("Siguiente");
-        buttonNext.addActionListener(e -> {
-            currentIndex += 8; // Avanzar a las siguientes 8 imágenes
-            if (currentIndex > totalImages) {
-                currentIndex = 1; // Si excede el total de imágenes, vuelve al principio
-            }
-            loadImages(); // Actualizar las imágenes mostradas
-        });
-
-        // Crear el botón para retroceder a la serie anterior de imágenes
-        buttonBack = new JButton("Atrás");
-        buttonBack.addActionListener(e -> {
-            currentIndex -= 8; // Retroceder a las 8 imágenes anteriores
-            if (currentIndex < 1) {
-                currentIndex = totalImages - 7; // Si está antes de la primera imagen, muestra las últimas 8
-            }
-            loadImages(); // Actualizar las imágenes mostradas
-        });
-
-        // Crear un panel para los botones y organizar su disposición
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout());
-        buttonPanel.add(buttonBack);
-        buttonPanel.add(buttonNext);
-
-        // Agregar componentes al JFrame
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        add(imagePanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
 
+        // Barra de búsqueda
+        JPanel searchPanel = new JPanel(new FlowLayout());
+        searchPanel.setBackground(new Color(173, 216, 230)); // Azul claro
+        searchField = new JTextField(20);
+        searchButton = new JButton("Search");
+        searchPanel.add(new JLabel("Search Pokémon by ID or Name: "));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+
+        // Panel de imágenes
+        imagePanel = new JPanel(new GridLayout(2, 4, 10, 10));
+        JScrollPane imageScrollPane = new JScrollPane(imagePanel);
+        imageScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        // Panel de paginación
+        paginationPanel = new JPanel(new FlowLayout());
+        paginationPanel.setBackground(new Color(240, 230, 140)); // Amarillo claro
+        backButton = new JButton("⬅ Back");
+        nextButton = new JButton("Next ➡");
+        JLabel pageInfo = new JLabel("Page " + currentPage, JLabel.CENTER);
+        pageInfo.setFont(new Font("Arial", Font.BOLD, 14));
+        paginationPanel.add(backButton);
+        paginationPanel.add(pageInfo);
+        paginationPanel.add(nextButton);
+
+        // Añadir componentes al JFrame
+        add(searchPanel, BorderLayout.NORTH);
+        add(imageScrollPane, BorderLayout.CENTER);
+        add(paginationPanel, BorderLayout.SOUTH);
+
+        // Listeners
+        searchButton.addActionListener(e -> searchPokemon(pageInfo));
+        backButton.addActionListener(e -> navigatePage(-1, pageInfo));
+        nextButton.addActionListener(e -> navigatePage(1, pageInfo));
+
+        loadPage();
         setVisible(true);
     }
 
-    private void loadImages() {
-        // Limpiar las imágenes anteriores del panel
+    private void loadPage() {
         imagePanel.removeAll();
 
-        // Cargar las 8 imágenes
-        for (int i = 0; i < 8; i++) {
-            int imageIndex = currentIndex + i;
-            if (imageIndex > totalImages) {
-                imageIndex = imageIndex - totalImages; // Hacer el recorrido circular
-            }
+        int startId = (currentPage - 1) * pageSize + 1;
+        for (int i = 0; i < pageSize; i++) {
+            int pokemonId = startId + i;
 
-            // Generar la ruta dinámica para la imagen
-            String imagePath = String.format("src/main/resources/pokemon_sprites/%d.png", imageIndex);
+            JPanel cardPanel = new JPanel(new BorderLayout());
+            cardPanel.setBackground(new Color(255, 250, 205)); // Amarillo claro
+            cardPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
-            // Cargar y escalar la imagen
-            ImageIcon originalIcon = new ImageIcon(imagePath);
-            Image scaledImage = originalIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+            JLabel pokemonLabel = new JLabel("Loading...");
+            pokemonLabel.setHorizontalAlignment(JLabel.CENTER);
+            cardPanel.add(pokemonLabel, BorderLayout.CENTER);
 
-            // Crear una etiqueta para la imagen
-            JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
-            imageLabel.setHorizontalAlignment(JLabel.CENTER);
+            // Fetch Pokémon data asíncronamente
+            executor.submit(() -> {
+                ImageIcon icon = fetchPokemonSprite(pokemonId);
+                if (icon != null) {
+                    SwingUtilities.invokeLater(() -> {
+                        pokemonLabel.setIcon(icon);
+                        pokemonLabel.setText(null);
+                        pokemonLabel.setHorizontalAlignment(JLabel.CENTER);
+                        cardPanel.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mouseClicked(MouseEvent e) {
+                                showPokemonDetails(pokemonId);
+                            }
 
-            // Agregar un MouseListener a la imagen
-            int finalImageIndex = imageIndex; // Variable final para usar dentro del MouseListener
-            imageLabel.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    showImageInNewWindow(finalImageIndex); // Mostrar la imagen en una ventana separada
+                            @Override
+                            public void mouseEntered(MouseEvent e) {
+                                cardPanel.setBackground(new Color(240, 230, 140));
+                            }
+
+                            @Override
+                            public void mouseExited(MouseEvent e) {
+                                cardPanel.setBackground(new Color(255, 250, 205));
+                            }
+                        });
+                    });
+                } else {
+                    SwingUtilities.invokeLater(() -> pokemonLabel.setText("Not found"));
                 }
             });
 
-            // Agregar la etiqueta al panel
-            imagePanel.add(imageLabel);
+            imagePanel.add(cardPanel);
         }
 
-        // Actualizar la interfaz para reflejar los cambios
         imagePanel.revalidate();
         imagePanel.repaint();
     }
 
-    // Método para mostrar una ventana emergente con un mensaje
-    private void showImageInNewWindow(int imageIndex) {
-        // Crear un nuevo JFrame para mostrar la imagen seleccionada
-        JFrame imageFrame = new JFrame("Imagen Detallada");
-        imageFrame.setSize(800, 600); // Tamaño de la ventana
-        imageFrame.setLocationRelativeTo(null);
-        imageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    private ImageIcon fetchPokemonSprite(int pokemonId) {
+        try {
+            // Simulación de la llamada a la API
+            String imagePath = String.format("src/main/resources/pokemon_sprites/%d.png", pokemonId);
+            ImageIcon icon = new ImageIcon(imagePath);
+            Image scaledImage = icon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+            return new ImageIcon(scaledImage);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
-        // Crear un panel principal para la imagen
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
+    private void showPokemonDetails(int pokemonId) {
+        executor.submit(() -> {
+            String name = "Pokémon #" + pokemonId;
+            String type = "Type: Fire";
+            String evolutions = "Evolutions: " + pokemonId + " -> " + (pokemonId + 1) + " -> " + (pokemonId + 2);
+            ImageIcon icon = fetchPokemonSprite(pokemonId);
 
-        // Cargar la imagen clickeada
-        String imagePath = String.format("src/main/resources/pokemon_sprites/%d.png", imageIndex);
-        ImageIcon originalIcon = new ImageIcon(imagePath);
-        Image image = originalIcon.getImage().getScaledInstance(400, 400, Image.SCALE_SMOOTH);
-        JLabel mainImageLabel = new JLabel(new ImageIcon(image));
-        mainImageLabel.setHorizontalAlignment(JLabel.CENTER);
+            SwingUtilities.invokeLater(() -> {
+                JFrame detailFrame = new JFrame("Pokémon Details");
+                detailFrame.setSize(500, 400);
+                detailFrame.setLocationRelativeTo(null);
 
-        // Crear un panel para los detalles (nombre, id, tipo)
-        JPanel detailsPanel = new JPanel();
-        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+                JPanel detailPanel = new JPanel(new BorderLayout());
+                detailPanel.setBackground(new Color(230, 230, 250));
 
-        // Aquí puedes colocar los detalles estáticos o dinámicos del Pokémon (simulados por ahora)
-        String name = "Pokémon #" + imageIndex; // Nombre simulado
-        String id = String.valueOf(imageIndex); // ID simulado
-        String type = "Tipo: Fuego"; // Tipo simulado
+                JLabel nameLabel = new JLabel("Name: " + name, JLabel.CENTER);
+                nameLabel.setFont(new Font("Arial", Font.BOLD, 18));
+                JLabel typeLabel = new JLabel(type, JLabel.CENTER);
+                JLabel evolutionsLabel = new JLabel(evolutions, JLabel.CENTER);
+                JLabel iconLabel = new JLabel(icon);
 
-        // Agregar las etiquetas con los detalles
-        detailsPanel.add(new JLabel("Nombre: " + name));
-        detailsPanel.add(new JLabel("ID: " + id));
-        detailsPanel.add(new JLabel("Tipo: " + type));
+                JPanel bottomPanel = new JPanel(new GridLayout(2, 1));
+                bottomPanel.add(typeLabel);
+                bottomPanel.add(evolutionsLabel);
 
-        // Crear un panel para las tres imágenes inferiores
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new GridLayout(1, 3, 10, 10));
+                detailPanel.add(nameLabel, BorderLayout.NORTH);
+                detailPanel.add(iconLabel, BorderLayout.CENTER);
+                detailPanel.add(bottomPanel, BorderLayout.SOUTH);
+                detailFrame.add(detailPanel);
+                detailFrame.setVisible(true);
+            });
+        });
+    }
 
-        // Cargar las imágenes de ID 1, 2 y la clickeada
-        String[] imageIds = { "1", "2", String.valueOf(imageIndex) };
-        String[] names = { "Pokémon #1", "Pokémon #2", "Pokémon #" + imageIndex };
+    private void navigatePage(int direction, JLabel pageInfo) {
+        currentPage += direction;
+        if (currentPage < 1) currentPage = 1;
+        pageInfo.setText("Page " + currentPage);
+        loadPage();
+    }
 
-        for (int i = 0; i < 3; i++) {
-            String idImage = imageIds[i];
-            String nameImage = names[i];
-            String bottomImagePath = String.format("src/main/resources/pokemon_sprites/%s.png", idImage);
-            ImageIcon bottomIcon = new ImageIcon(bottomImagePath);
-            Image bottomImage = bottomIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-            JLabel bottomImageLabel = new JLabel(new ImageIcon(bottomImage));
-            bottomImageLabel.setHorizontalAlignment(JLabel.CENTER);
-
-            // Crear un panel para cada imagen con su ID y Nombre debajo
-            JPanel imageWithDetailsPanel = new JPanel();
-            imageWithDetailsPanel.setLayout(new BorderLayout());
-            imageWithDetailsPanel.add(bottomImageLabel, BorderLayout.CENTER);
-            imageWithDetailsPanel.add(new JLabel(nameImage), BorderLayout.SOUTH);
-            imageWithDetailsPanel.add(new JLabel("ID: " + idImage), BorderLayout.NORTH);
-
-            bottomPanel.add(imageWithDetailsPanel); // Agregar al panel inferior
+    private void searchPokemon(JLabel pageInfo) {
+        String query = searchField.getText().trim();
+        if (query.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Pokémon ID or Name.");
+            return;
         }
 
-        // Crear un panel para contener la imagen, los detalles y las imágenes inferiores
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BorderLayout());
-        contentPanel.add(mainImageLabel, BorderLayout.CENTER);
-        contentPanel.add(detailsPanel, BorderLayout.EAST); // Detalles a la derecha
-        contentPanel.add(bottomPanel, BorderLayout.SOUTH); // Imágenes inferiores
+        try {
+            int pokemonId = Integer.parseInt(query);
+            showPokemonDetails(pokemonId);
+        } catch (NumberFormatException e) {
+            String pokemonName = query.toLowerCase();
+            // Simulación de búsqueda por nombre
+            int pokemonId = fetchPokemonIdByName(pokemonName);
+            if (pokemonId != -1) {
+                showPokemonDetails(pokemonId);
+            } else {
+                JOptionPane.showMessageDialog(this, "Pokémon not found by name.");
+            }
+        }
+    }
 
-        // Agregar el panel principal al JFrame
-        imageFrame.add(contentPanel);
-        imageFrame.setVisible(true);
+    private int fetchPokemonIdByName(String name) {
+        // Simula un mapeo nombre-ID (reemplaza con una llamada real a la PokéAPI)
+        if (name.equals("pikachu")) return 25;
+        if (name.equals("charmander")) return 4;
+        if (name.equals("bulbasaur")) return 1;
+        return -1;
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Inicio::new);
     }
 }
+
+
