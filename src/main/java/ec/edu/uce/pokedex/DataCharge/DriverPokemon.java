@@ -1,7 +1,11 @@
 package ec.edu.uce.pokedex.DataCharge;
 
+import ec.edu.uce.pokedex.jpa.Habitat;
 import ec.edu.uce.pokedex.jpa.Pokemon;
+import ec.edu.uce.pokedex.jpa.Types;
+import ec.edu.uce.pokedex.repositories.HabitatRepository;
 import ec.edu.uce.pokedex.repositories.PokemonRepository;
+import ec.edu.uce.pokedex.repositories.TypesRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,11 @@ public class DriverPokemon {
     private final ExecutorService executorService;
     @Autowired
     private PokemonRepository pokemonRepository;
+    @Autowired
+    private TypesRepository typesRepository;
+    @Autowired
+    HabitatRepository habitatRepository;
+
 
     public DriverPokemon(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -170,6 +179,32 @@ public class DriverPokemon {
                             }
                         }
                     }
+                    if (habitatId != null) {
+                        Optional<Habitat> newHabitat = habitatRepository.findById(habitatId);
+                        if (newHabitat.isPresent()) {
+                            nuevoPokemon.setHabitat(newHabitat.get());
+                        } else {
+                            throw new RuntimeException("Habitat con ID " + habitatId + " no encontrado.");
+                        }
+                    }
+
+                    List<Types> tiposList = new ArrayList<>();
+                    for (Integer typeId : typeIds) {
+                        Optional<Types> newTypes = typesRepository.findById(typeId);
+
+                        // Verificar si el tipo existe antes de acceder a su valor
+                        if (newTypes.isPresent()) {
+                            tiposList.add(newTypes.get());
+                        } else {
+                            // Manejar el caso si no se encuentra el tipo
+                            System.out.println("Tipo con ID " + typeId + " no encontrado.");
+                        }
+                    }
+
+
+
+
+                    nuevoPokemon.setTypes(tiposList);
                     nuevoPokemon.setEnvoles(evolutionIds);
                    pokemonRepository.save(nuevoPokemon);
 

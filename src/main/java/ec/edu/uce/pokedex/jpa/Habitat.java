@@ -1,9 +1,8 @@
 package ec.edu.uce.pokedex.jpa;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table (name = "Habitat")
@@ -13,6 +12,18 @@ public class Habitat {
     private int id;
     @Column (name = "name_habitat")
     private String name;
+
+
+   @OneToMany(mappedBy = "habitat", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Pokemon> pokemons;  // Un hábitat tiene varios Pokémon
+
+    public List<Pokemon> getPokemons() {
+        return pokemons;
+    }
+
+    public void setPokemons(List<Pokemon> pokemons) {
+        this.pokemons = pokemons;
+    }
 
     public Habitat() { }
 
