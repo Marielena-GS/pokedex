@@ -8,3 +8,4 @@ import org.springframework.stereotype.Repository;
 public interface TypesRepository extends JpaRepository<Types, Integer> {
     Types findById(int id);
 }
+

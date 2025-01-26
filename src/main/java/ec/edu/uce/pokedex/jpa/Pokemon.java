@@ -11,31 +11,75 @@ public class Pokemon {
     @Id
     @Column(name = "id")
     private int id;
+
     @Column(name = "pokemon_name")
     private String name;
+
     @Column(name = "pokemon_heigth")
     private int height;
+
     @Column(name = "pokemon_weight")
     private int weight;
+
     @Column(name = "pokemon_stat_hp")
     private double stats_hp;
+
     @Column(name = "pokemon_stat_attack")
     private double stats_attack;
+
     @Column(name = "pokemon_stat_defense")
     private double stats_defense;
+
     @Column(name = "pokemon_stat_special_attack")
     private double stats_special_attack;
+
     @Column(name = "pokemon_special_defense")
     private double stats_special_defense;
+
     @Column(name = "pokemon_stat_speed")
     private double stats_speed;
+
     @Column(name = "pokemon_stat_accuracy")
     private double stats_accuracy;
+
     @Column(name = "pokemon_stat_evasion")
     private double stats_evasion;
+
     @ElementCollection
     @Column(name = "pokemon_envoles")
-    private List<Integer> envoles;
+    private List<Integer> envoles;  // Aquí no es necesario el @ManyToMany, ya que es una lista simple de enteros.
+
+
+    // Relación Many-to-Many con Types
+    @ManyToMany
+    @JoinTable(
+            name = "pokemon_types",
+            joinColumns = @JoinColumn(name = "pokemon_id"),
+            inverseJoinColumns = @JoinColumn(name = "type_id")
+    )
+    private List<Types> types;  // Relación Many-to-Many con la entidad Types
+
+    @ManyToOne
+    @JoinColumn(name = "habitat_id") // Clave foránea
+    private Habitat habitat;  // Relación Many-to-One con Habitat
+
+    public Habitat getHabitat() {
+        return habitat;
+    }
+
+    public void setHabitat(Habitat habitat) {
+        this.habitat = habitat;
+    }
+
+
+
+    public List<Types> getTypes() {
+        return types;
+    }
+
+    public void setTypes(List<Types> types) {
+        this.types = types;
+    }
 
     public int getId() {
         return id;

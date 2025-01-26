@@ -1,15 +1,14 @@
 package ec.edu.uce.pokedex;
 
 import ec.edu.uce.pokedex.DataCharge.*;
-import ec.edu.uce.pokedex.Grafica.Inicio;
+import ec.edu.uce.pokedex.jpa.Types;
+import ec.edu.uce.pokedex.repositories.TypesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import javax.swing.*;
-import java.awt.*;
+import java.util.Optional;
 
 @SpringBootApplication
 public class PokedexApiApplication implements CommandLineRunner {
@@ -32,6 +31,9 @@ public class PokedexApiApplication implements CommandLineRunner {
 
 	@Autowired
 	private DriverTypes driverTypesService;
+	//
+	@Autowired
+	private TypesRepository typesRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(PokedexApiApplication.class, args);
@@ -47,7 +49,10 @@ public class PokedexApiApplication implements CommandLineRunner {
 		//driverAbilityService.ejecutar();
 		//driverHabitadService.ejecutar();
 		//driverMoveService.ejecutar();
+
 		driverPokemon.ejecutar();
+
+
 
 		//Llamar al método ejecutar sin necesidad de crear una nueva instancia de DriverPokemon
 

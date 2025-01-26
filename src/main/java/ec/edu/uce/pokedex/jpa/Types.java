@@ -1,9 +1,8 @@
 package ec.edu.uce.pokedex.jpa;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "Types")
@@ -13,6 +12,17 @@ public class Types {
     private int id;
     @Column (name = "name_types")
     private String name;
+    //relacion pokemon
+    @ManyToMany(mappedBy = "types")
+    private List<Pokemon> pokemons;
+
+    public List<Pokemon> getPokemons() {
+        return pokemons;
+    }
+
+    public void setPokemons(List<Pokemon> pokemons) {
+        this.pokemons = pokemons;
+    }
 
     public Types() { }
 
