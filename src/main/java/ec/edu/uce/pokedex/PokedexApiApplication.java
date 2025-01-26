@@ -1,60 +1,32 @@
 package ec.edu.uce.pokedex;
 
-import ec.edu.uce.pokedex.DataCharge.*;
-import ec.edu.uce.pokedex.Grafica.Inicio;
-import ec.edu.uce.pokedex.jpa.Types;
-import ec.edu.uce.pokedex.repositories.TypesRepository;
+import ec.edu.uce.pokedex.Grafica.MainWindow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
-import java.util.Optional;
+	@SpringBootApplication
+	@ComponentScan(basePackages = {"ec.edu.uce.pokedex.Grafica", "ec.edu.uce.pokedex.DataCharge"})
+	public class PokedexApiApplication implements CommandLineRunner {
+		@Autowired
+		MainWindow mainWindow;
+		public static void main(String[] args) {
+			SpringApplication.run(PokedexApiApplication.class, args);
 
-@SpringBootApplication
-public class PokedexApiApplication implements CommandLineRunner {
+		}
 
-	// Autowired para inyectar DriverPokemon
-	@Autowired
-	private DriverPokemon driverPokemon;
+		@Override
+		public void run(String... args) throws Exception {
+			mainWindow.setVisible(true);
+			}
 
-	@Autowired
-	private DriveAbility driverAbilityService;
-
-	@Autowired
-	private DriverHabitad driverHabitadService;
-
-	@Autowired
-	private DriverMove driverMoveService;
-
-	@Autowired
-	private DriverRegion driverRegionService;
-
-	@Autowired
-	private DriverTypes driverTypesService;
-	//
-	@Autowired
-	private TypesRepository typesRepository;
-
-	public static void main(String[] args) {
-		SpringApplication.run(PokedexApiApplication.class, args);
+		}
 
 
-	}
 
-	@Override
-	public void run(String... args) throws Exception {
 
-		//driverTypesService.ejecutar();
-		//driverRegionService.ejecutar();
-		//driverAbilityService.ejecutar();
-		//driverHabitadService.ejecutar();
-		//driverMoveService.ejecutar();
 
-		driverPokemon.ejecutar();
 
-		//Llamar al método ejecutar sin necesidad de crear una nueva instancia de DriverPokemon
 
-		new Inicio();
-	}
-}

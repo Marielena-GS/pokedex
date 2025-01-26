@@ -1,5 +1,6 @@
 package ec.edu.uce.pokedex.DataCharge;
 
+import ec.edu.uce.pokedex.Observer.CargaDatosListener;
 import ec.edu.uce.pokedex.jpa.Habitat;
 import ec.edu.uce.pokedex.repositories.HabitatRepository;
 import org.apache.http.HttpEntity;
@@ -16,20 +17,22 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 @Service
 public class DriverHabitad {
     private final ExecutorService executorService;
+    private CargaDatosListener cargaDatosMoveListener; // Observer
 
     @Autowired
     private HabitatRepository habitatRepository;
 
-    public void save(Habitat habitat)
-    {
-        habitatRepository.save(habitat);
-        habitatRepository.findById(habitat.getId());
+    // Configurar el Listener
+    public void setCargaDatosListener(CargaDatosListener listener) {
+        this.cargaDatosMoveListener = listener;
     }
+
 
     public DriverHabitad() {
         this.executorService = Executors.newFixedThreadPool(10);
@@ -52,6 +55,17 @@ public class DriverHabitad {
                 Habitat newHabitat = new Habitat(habitadList.indexOf(habita)+1,habita.optString("name"));
                 habitatRepository.save(newHabitat);
             }));
+
+            executorService.shutdown();
+            try {
+                if (executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    if (cargaDatosMoveListener != null) {
+                        cargaDatosMoveListener.onCargaCompleta();
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         } else {
             System.out.println("No se pudo obtener información de los hábitats.");

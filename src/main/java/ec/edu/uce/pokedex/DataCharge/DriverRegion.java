@@ -1,5 +1,6 @@
 package ec.edu.uce.pokedex.DataCharge;
 
+import ec.edu.uce.pokedex.Observer.CargaDatosListener;
 import ec.edu.uce.pokedex.jpa.Move;
 import ec.edu.uce.pokedex.jpa.Region;
 import ec.edu.uce.pokedex.repositories.RegionRepository;
@@ -17,19 +18,20 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 @Service
 public class DriverRegion {
     private final ExecutorService executor;
+    private CargaDatosListener cargaDatosMoveListener; // Observer
 
     @Autowired
     private RegionRepository regionRepository;
 
-    private void save(Region region)
-    {
-        regionRepository.save(region);
-        regionRepository.findById(region.getId());
+    // Configurar el Listener
+    public void setCargaDatosListener(CargaDatosListener listener) {
+        this.cargaDatosMoveListener = listener;
     }
 
     public DriverRegion(){
@@ -53,7 +55,17 @@ public class DriverRegion {
                         Region newRegion = new Region(regionList.indexOf(regions) + 1,regions.optString("name"));
                         regionRepository.save(newRegion);
                     }));
-
+            // Cerrar el pool de hilos y esperar a que finalicen
+            executor.shutdown();
+            try {
+                if (executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    if (cargaDatosMoveListener != null) {
+                        cargaDatosMoveListener.onCargaCompleta();
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } else {
             System.out.println("No se pudo obtener información de las regiones.");
         }

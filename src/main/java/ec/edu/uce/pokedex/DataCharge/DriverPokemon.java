@@ -1,11 +1,8 @@
 package ec.edu.uce.pokedex.DataCharge;
 
-import ec.edu.uce.pokedex.jpa.Habitat;
-import ec.edu.uce.pokedex.jpa.Pokemon;
-import ec.edu.uce.pokedex.jpa.Types;
-import ec.edu.uce.pokedex.repositories.HabitatRepository;
-import ec.edu.uce.pokedex.repositories.PokemonRepository;
-import ec.edu.uce.pokedex.repositories.TypesRepository;
+import ec.edu.uce.pokedex.Observer.CargaDatosListener;
+import ec.edu.uce.pokedex.jpa.*;
+import ec.edu.uce.pokedex.repositories.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +24,18 @@ public class DriverPokemon {
     private TypesRepository typesRepository;
     @Autowired
     HabitatRepository habitatRepository;
+    @Autowired
+    RegionRepository regionRepository;
+    @Autowired
+    MoveRepository moveRepository;
+    @Autowired
+    AbilitiesRepository abilitiesRepository;
 
+    private CargaDatosListener cargaDatosMoveListener; // Observer
+    // Configurar el Listener
+    public void setCargaDatosListener(CargaDatosListener listener) {
+        this.cargaDatosMoveListener = listener;
+    }
 
     public DriverPokemon(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -200,13 +208,36 @@ public class DriverPokemon {
                             System.out.println("Tipo con ID " + typeId + " no encontrado.");
                         }
                     }
+                    List<Region> regionesList = new ArrayList<>();
+                    for (Integer regiones : regionIds) {
+                        Optional<Region> newRegion = regionRepository.findById(regiones);
+                        if (newRegion.isPresent()) {
+                            regionesList.add(newRegion.get());
+                        }
+                    }
 
+                    List<Move> movimientoList = new ArrayList<>();
+                    for (Integer movimientos : moveIds) {
+                        Optional<Move> newMove = moveRepository.findById(movimientos);
+                        if (newMove.isPresent()) {
+                            movimientoList.add(newMove.get());
+                        }
+                    }
 
+                    List<Abilities> abilidadesList = new ArrayList<>();
+                    for (Integer abilidades : abilityIds) {
+                        Optional<Abilities> newAbilidades = abilitiesRepository.findById(abilidades);
+                        if (newAbilidades.isPresent()) {
+                            abilidadesList.add(newAbilidades.get());
+                        }
+                    }
 
-
+                    nuevoPokemon.setAbilities(abilidadesList);
+                    nuevoPokemon.setMoves(movimientoList);
+                    nuevoPokemon.setRegions(regionesList);
                     nuevoPokemon.setTypes(tiposList);
                     nuevoPokemon.setEnvoles(evolutionIds);
-                   pokemonRepository.save(nuevoPokemon);
+                    pokemonRepository.save(nuevoPokemon);
 
                     return null;
                 });
@@ -221,6 +252,17 @@ public class DriverPokemon {
                 }
             } catch (InterruptedException | ExecutionException e) {
                 System.err.println("Error al ejecutar tareas en paralelo: " + e.getMessage());
+            }
+            // Cerrar el pool de hilos y esperar a que finalicen
+            executorService.shutdown();
+            try {
+                if (executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    if (cargaDatosMoveListener != null) {
+                        cargaDatosMoveListener.onCargaCompleta();
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         } else {
             System.out.println("No se pudieron obtener los datos de los Pokémon.");

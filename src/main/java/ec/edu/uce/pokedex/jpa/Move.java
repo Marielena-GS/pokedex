@@ -1,9 +1,8 @@
 package ec.edu.uce.pokedex.jpa;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "Move")
@@ -13,6 +12,17 @@ public class Move {
     private int id;
     @Column(name = "name_move")
     private String name;
+
+    @ManyToMany(mappedBy = "moves")
+    private List<Pokemon> pokemones; // Relación Many-to-Many con Pokemon
+
+    public List<Pokemon> getPokemones() {
+        return pokemones;
+    }
+
+    public void setPokemones(List<Pokemon> pokemones) {
+        this.pokemones = pokemones;
+    }
 
     public Move() { }
 

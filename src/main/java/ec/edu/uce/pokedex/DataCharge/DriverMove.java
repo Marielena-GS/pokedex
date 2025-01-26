@@ -1,5 +1,6 @@
 package ec.edu.uce.pokedex.DataCharge;
 
+import ec.edu.uce.pokedex.Observer.CargaDatosListener;
 import ec.edu.uce.pokedex.jpa.Move;
 import ec.edu.uce.pokedex.repositories.MoveRepository;
 import org.apache.http.HttpEntity;
@@ -16,40 +17,54 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 @Service
 public class DriverMove {
     private final ExecutorService executorService;
+    private CargaDatosListener cargaDatosMoveListener; // Observer
 
     @Autowired
     private MoveRepository moveRepository;
 
-    public void save(Move move)
-    {
-        moveRepository.save(move);
-        moveRepository.findById(move.getId());
-    }
-
-    public DriverMove(){
+    public DriverMove() {
         this.executorService = Executors.newFixedThreadPool(10);
     }
 
+    // Configurar el Listener
+    public void setCargaDatosListener(CargaDatosListener listener) {
+        this.cargaDatosMoveListener = listener;
+    }
+
     public void ejecutar() {
-        // Consultar los movimientos de Pokémon
         JSONObject movesData = obtenerMoves();
 
         if (movesData != null) {
-            // Extraer y mostrar la información de los movimientos
             JSONArray moves = movesData.getJSONArray("results");
-            List<JSONObject> moveList = Stream.iterate(0,i->i+1)
+            List<JSONObject> moveList = Stream.iterate(0, i -> i + 1)
                     .limit(moves.length())
                     .map(moves::getJSONObject)
                     .collect(Collectors.toList());
-            moveList.stream().parallel().forEach(mov -> executorService.execute(()->{
-                Move newMove = new Move(moveList.indexOf(mov)+1,mov.optString("name"));
-                        moveRepository.save(newMove);
+
+            moveList.forEach(mov -> executorService.execute(() -> {
+                Move newMove = new Move(moveList.indexOf(mov) + 1, mov.optString("name"));
+                moveRepository.save(newMove);
             }));
+
+            // Cerrar el pool de hilos y esperar a que finalicen
+            executorService.shutdown();
+            try {
+                if (executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    if (cargaDatosMoveListener != null) {
+                        cargaDatosMoveListener.onCargaCompleta();
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
         } else {
             System.out.println("No se pudo obtener información de los movimientos.");
         }

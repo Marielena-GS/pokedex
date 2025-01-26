@@ -63,6 +63,55 @@ public class Pokemon {
     @JoinColumn(name = "habitat_id") // Clave foránea
     private Habitat habitat;  // Relación Many-to-One con Habitat
 
+
+    @ManyToMany
+    @JoinTable(
+            name = "pokemon_region",
+            joinColumns = @JoinColumn(name = "pokemon_id"),
+            inverseJoinColumns = @JoinColumn(name = "region_id")
+    )
+    private List<Region> regions; // Relación Many-to-Many con Region
+
+    @ManyToMany
+    @JoinTable(
+            name = "pokemon_moves",
+            joinColumns = @JoinColumn(name = "pokemon_id"),
+            inverseJoinColumns = @JoinColumn(name = "move_id")
+    )
+    private List<Move> moves; // Relación Many-to-Many con Move
+
+    @ManyToMany
+    @JoinTable(
+            name = "pokemon_abilities",
+            joinColumns = @JoinColumn(name = "pokemon_id"),
+            inverseJoinColumns = @JoinColumn(name = "ability_id")
+    )
+    private List<Abilities> abilities; // Relación Many-to-Many con Abilities
+
+    public List<Abilities> getAbilities() {
+        return abilities;
+    }
+
+    public void setAbilities(List<Abilities> abilities) {
+        this.abilities = abilities;
+    }
+
+    public List<Move> getMoves() {
+        return moves;
+    }
+
+    public void setMoves(List<Move> moves) {
+        this.moves = moves;
+    }
+
+    public List<Region> getRegions() {
+        return regions;
+    }
+
+    public void setRegions(List<Region> regions) {
+        this.regions = regions;
+    }
+
     public Habitat getHabitat() {
         return habitat;
     }

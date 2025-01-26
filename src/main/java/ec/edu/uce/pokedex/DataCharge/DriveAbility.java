@@ -1,5 +1,6 @@
 package ec.edu.uce.pokedex.DataCharge;
 
+import ec.edu.uce.pokedex.Observer.CargaDatosListener;
 import ec.edu.uce.pokedex.jpa.Abilities;
 import ec.edu.uce.pokedex.repositories.AbilitiesRepository;
 import org.apache.http.HttpEntity;
@@ -16,25 +17,30 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 @Service
 public class DriveAbility {
     private final ExecutorService executorService;
+    private CargaDatosListener cargaDatosMoveListener; // Observer
 
     @Autowired
     private AbilitiesRepository abilitiesRepository;
 
-    public void save(Abilities abilities)
-    {
-        abilitiesRepository.save(abilities);
-        abilitiesRepository.findById(abilities.getId());
-    }
+
+
+
 
     public DriveAbility() {
         // Crear un pool de hilos con un número fijo de hilos
         this.executorService = Executors.newFixedThreadPool(10); // Puedes ajustar el número de hilos
     }
+    // Configurar el Listener
+    public void setCargaDatosListener(CargaDatosListener listener) {
+        this.cargaDatosMoveListener = listener;
+    }
+
 
     public void ejecutar() {
         // Consultar los movimientos de Pokémon
@@ -55,7 +61,17 @@ public class DriveAbility {
                 Abilities abiliti = new Abilities(abilityList.indexOf(abilitys) + 1, abilitys.optString("name"));
                 abilitiesRepository.save(abiliti);
             }));
-
+            // Cerrar el pool de hilos y esperar a que finalicen
+            executorService.shutdown();
+            try {
+                if (executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    if (cargaDatosMoveListener != null) {
+                        cargaDatosMoveListener.onCargaCompleta();
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } else {
             System.out.println("No se pudo obtener información de las habilidades.");
         }
