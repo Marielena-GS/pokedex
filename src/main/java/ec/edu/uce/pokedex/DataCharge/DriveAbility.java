@@ -28,10 +28,6 @@ public class DriveAbility {
     @Autowired
     private AbilitiesRepository abilitiesRepository;
 
-
-
-
-
     public DriveAbility() {
         // Crear un pool de hilos con un número fijo de hilos
         this.executorService = Executors.newFixedThreadPool(10); // Puedes ajustar el número de hilos

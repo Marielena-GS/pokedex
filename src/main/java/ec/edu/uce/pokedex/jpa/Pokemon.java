@@ -120,8 +120,6 @@ public class Pokemon {
         this.habitat = habitat;
     }
 
-
-
     public List<Types> getTypes() {
         return types;
     }

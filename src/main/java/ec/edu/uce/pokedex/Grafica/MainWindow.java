@@ -54,7 +54,7 @@ public class MainWindow extends JFrame implements CargaDatosListener {
 
         // Panel de botones
         JPanel buttonPanel = new JPanel();
-        JButton cargarDatosButton = new JButton("Cargar Datos");
+        JButton cargarDatosButton = new JButton("LOAD DATA");
         JButton pokedexButton = new JButton("POKEDEX");
 
         // Configurar el listener para "Cargar Datos"
@@ -112,10 +112,10 @@ public class MainWindow extends JFrame implements CargaDatosListener {
     public void onCargaCompleta() {
         // Notificar cuando la carga de datos esté completa
         int completados = driversCompletados.incrementAndGet();
-        System.out.println("Carga de un driver completada. Total completados: " + completados);
+        System.out.println("Loading a completed driver. \n TOTAL COMPLETED: " + completados);
 
         if (completados == 6) {
-            System.out.println("¡Todos los drivers han terminado la carga! Resultado: true");
+            System.out.println("All drivers have finished charging!. \n Result: TRUE");
         }
     }
 

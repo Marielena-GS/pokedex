@@ -13,7 +13,6 @@ public class Habitat {
     @Column (name = "name_habitat")
     private String name;
 
-
    @OneToMany(mappedBy = "habitat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pokemon> pokemons;  // Un hábitat tiene varios Pokémon
 
