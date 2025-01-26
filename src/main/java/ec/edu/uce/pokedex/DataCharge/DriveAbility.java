@@ -53,7 +53,6 @@ public class DriveAbility {
                 // Obtener el nombre y ID de la habilidad
                 // Crear y mostrar la habilidad
                 Abilities abiliti = new Abilities(abilityList.indexOf(abilitys) + 1, abilitys.optString("name"));
-
                 System.out.println("ID: " + abiliti.getId() + " - Nombre: " + abiliti.getName());
             }));
 
