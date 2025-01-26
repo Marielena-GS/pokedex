@@ -49,7 +49,7 @@ public class DriverTypes {
             // Procesar en paralelo
             typeList.stream().parallel().forEach(tipo->executorService.execute(()->{
                 Types newType = new Types(typeList.indexOf(tipo) + 1,tipo.optString("name"));
-                        System.out.println("ID: " + newType.getId() + " - Tipo: " + newType.getName());
+                        typesRepository.save(newType);
                     }));
 
         } else {

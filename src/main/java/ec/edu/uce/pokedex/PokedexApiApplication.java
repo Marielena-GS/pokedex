@@ -59,7 +59,7 @@ public class PokedexApiApplication implements CommandLineRunner {
 		driverTypesService.ejecutar();
 
 		//Llamar al método ejecutar sin necesidad de crear una nueva instancia de DriverPokemon
-		pokedexService.ejecutar();
+		//pokedexService.ejecutar();
 		//new Inicio();
 	}
 }
