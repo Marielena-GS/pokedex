@@ -360,7 +360,7 @@ public class MainWindow extends JFrame implements CargaDatosListener {
                 icon3 =fetchPokemonSprite(pokemon.getEnvoles().get(2));
             }else {
                 icon1 = fetchPokemonSprite(pokemon.getEnvoles().get(0));
-                icon2 = fetchPokemonSprite(pokemon.getEnvoles().get(0));
+                icon2 = fetchPokemonSprite(10000);
                 icon3 = fetchPokemonSprite(pokemon.getEnvoles().get(1));
 
             }
@@ -369,7 +369,7 @@ public class MainWindow extends JFrame implements CargaDatosListener {
                 Pokemon pokemonEvolesName = pokemonRepository.findById(evolucion).get();
                 evolesName.add(pokemonEvolesName);
                 if(pokemon.getEnvoles().size()!=3){
-                    Pokemon pokemonEvolesName1 = pokemonRepository.findById(pokemon.getEnvoles().get(0)).get();
+                    Pokemon pokemonEvolesName1 = null;
                     evolesName.add(pokemonEvolesName1);
                 }
             }
@@ -582,7 +582,7 @@ public class MainWindow extends JFrame implements CargaDatosListener {
                 icon3 =fetchPokemonSprite(pokemon.getEnvoles().get(2));
             }else {
                 icon1 = fetchPokemonSprite(pokemon.getEnvoles().get(0));
-                icon2 = fetchPokemonSprite(pokemon.getEnvoles().get(0));
+                icon2 = fetchPokemonSprite(10000);
                 icon3 = fetchPokemonSprite(pokemon.getEnvoles().get(1));
 
             }
