@@ -616,7 +616,6 @@ public class MainWindow extends JFrame implements CargaDatosListener {
                 ImageIcon resizedIcon = new ImageIcon(icon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH)); // Redimensionar
                 JLabel iconLabel = new JLabel(resizedIcon);
 
-
                 // Panel de detalles (derecha)
                 JPanel rightPanel = new JPanel(new GridLayout(7, 5, 15, 15));  // Aumentamos el espacio entre filas
                 rightPanel.setBackground(new Color(230, 230, 250));
@@ -698,9 +697,7 @@ public class MainWindow extends JFrame implements CargaDatosListener {
             });
         });
     }
-
-
-
+    
     private void navigatePage(int direction, JLabel pageInfo) {
         currentPage += direction;
         if (currentPage < 1) currentPage = 1;
