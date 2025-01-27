@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Component
 public class MainWindow extends JFrame implements CargaDatosListener {
@@ -61,7 +62,7 @@ public class MainWindow extends JFrame implements CargaDatosListener {
         this.driverTypesService = driverTypesService;
         this.driverPokemonService = driverPokemonService;
         setTitle("Pokédex");
-        setSize(1000, 800);
+        setSize(1300, 1200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -72,17 +73,81 @@ public class MainWindow extends JFrame implements CargaDatosListener {
         searchField = new JTextField(10);
 
         // Comboboxes for filters
-        typeComboBox = new JComboBox<>(new String[] {"All Types", "Fire", "Water", "Grass", "Electric"});
-        regionComboBox = new JComboBox<>(new String[] {"All Regions", "Kanto", "Johto", "Hoenn", "Sinnoh"});
-        abilityComboBox = new JComboBox<>(new String[] {"All Abilities", "Overgrow", "Blaze", "Torrent", "Levitate"});
-        moveComboBox = new JComboBox<>(new String[] {"All Moves", "Tackle", "Flamethrower", "Thunderbolt"});
-        habitatComboBox = new JComboBox<>(new String[] {"All Habitats", "Forest", "Cave", "Water", "Desert"});
+        typeComboBox = new JComboBox<>(new String[] {
+                "all types", "fire", "water", "grass", "electric", "psychic", "rock",
+                "ice", "fairy", "bug", "stellar", "unknown", "flying", "normal",
+                "ground", "dark", "ghost", "fighting", "poison", "dragon", "steel"
+        });
+        regionComboBox = new JComboBox<>(new String[] {
+                "all regions", "kanto", "johto", "hoenn", "sinnoh", "paldea", "alola",
+                "hisui", "galar", "unova", "kalos"
+        });
+
+        abilityComboBox = new JComboBox<>(new String[] {
+                "all abilities", "overgrow", "blaze", "torrent", "levitate", "full-metal-body", "intrepid-sword",
+                "snow-warning", "neuroforce", "ice-body", "shadow-shield", "warm-blanket", "spirit", "solid-rock",
+                "prism-armor", "gulp", "herbivore", "sponge", "medic", "lunchbox", "life-force", "sandpit", "melee",
+                "nurse", "hot-blooded", "bodyguard", "grass-cloak", "lullaby", "vanguard", "hero", "last-bastion",
+                "nomad", "stealth", "sequence", "celebrate", "calming", "daze", "interference", "mood-maker",
+                "confidence", "frighten", "fortune", "explode", "omnipotent", "bonanza", "share", "disgust",
+                "black-hole", "sprint", "aqua-boost", "flame-boost", "shadow-dash", "climber", "high-rise", "run-up",
+                "shield", "conqueror", "hospitality", "supersweet-syrup", "honey-gather", "embody-aspect", "minds-eye",
+                "toxic-chain", "decoy", "shackle", "tera-shift", "teraform-zero", "frisk", "reckless", "tera-shell",
+                "multitype", "flower-gift", "poison-puppeteer", "wave-rider", "mountaineer", "bad-dreams", "pickpocket",
+                "skater", "thrust", "sheer-force", "contrary", "perception", "unnerve", "parry", "instinct", "defiant",
+                "jagged-edge", "dodge", "defeatist", "cursed-body", "frostbite", "friend-guard", "tenacity", "healer",
+                "pride", "weak-armor", "light-metal", "deep-sleep", "heavy-metal", "power-nap", "multiscale",
+                "rocky-payload", "wind-power", "toxic-boost", "zero-to-hero", "commander", "good-as-gold", "skill-link",
+                "quark-drive", "protosynthesis", "electromorphosis", "vessel-of-ruin", "hydration", "sword-of-ruin",
+                "solar-power", "tablets-of-ruin", "normalize", "beads-of-ruin", "quick-feet", "orichalcum-pulse",
+                "no-guard", "magic-guard", "hadron-engine", "opportunist", "sniper", "cud-chew", "stall", "technician",
+                "sharpness", "supreme-overlord", "leaf-guard", "costar", "toxic-debris", "mold-breaker", "armor-tail",
+                "klutz", "earth-eater", "anticipation", "aftermath", "super-luck", "mycelium-might", "forewarn",
+                "unaware", "tinted-lens", "slow-start", "filter", "zen-mode", "storm-drain", "scrappy", "teravolt",
+                "victory-star", "turboblaze", "surge-surfer", "aroma-veil", "schooling", "cheek-pouch", "disguise",
+                "flower-veil", "power-construct", "protean", "fur-coat", "corrosion", "magician", "battle-bond",
+                "comatose", "bulletproof", "queenly-majesty", "strong-jaw", "competitive", "refrigerate", "innards-out",
+                "dancer", "battery", "fluffy", "dazzling", "stance-change", "sweet-veil", "gale-wings", "grass-pelt",
+                "receiver", "tangling-hair", "soul-heart", "mega-launcher", "symbiosis", "power-of-alchemy", "flare-boost",
+                "fairy-aura", "stamina", "merciless", "ball-fetch", "ice-scales", "prankster", "thick-fat", "swift-swim",
+                "stench", "volt-absorb", "suction-cups", "shell-armor", "simple", "hyper-cutter", "torrent",
+                "curious-medicine", "purifying-salt", "beast-boost", "moody", "big-pecks", "imposter", "rattled",
+                "mirror-armor", "magic-bounce", "galvanize", "clear-body", "magma-armor", "static", "intimidate",
+                "motor-drive", "heatproof", "hustle", "forecast", "perish-body", "grim-neigh", "guard-dog", "grassy-surge",
+                "aerilate", "desolate-land", "infiltrator", "propeller-tail", "steely-spirit", "slush-rush", "shadow-tag",
+                "lightning-rod", "inner-focus", "sturdy", "own-tempo", "white-smoke", "gluttony", "flame-body",
+                "liquid-ooze", "pastel-veil", "as-one-spectrier", "well-baked-body", "gooey", "harvest", "aura-break",
+                "analytic", "moxie", "stalwart", "ice-face", "sand-force", "effect-spore", "illuminate", "magnet-pull",
+                "water-absorb", "insomnia", "pure-power", "dry-skin", "plus", "sticky-hold", "gorilla-tactics",
+                "transistor", "wind-rider", "pixilate", "telepathy", "sand-rush", "emergency-exit", "water-bubble",
+                "punk-rock", "steelworker", "triage", "synchronize", "poison-point", "battle-armor", "immunity",
+                "drought", "steadfast", "poison-heal", "pickup", "blaze", "hunger-switch", "as-one-glastrier",
+                "anger-shell", "rks-system", "parental-bond", "wonder-skin", "water-compaction", "libero", "sand-spit",
+                "iron-barbs", "early-bird", "natural-cure", "rain-dish", "limber", "compound-eyes", "vital-spirit",
+                "anger-point", "keen-eye", "shed-skin", "unseen-fist", "thermal-exchange", "misty-surge", "overcoat",
+                "primordial-sea", "mummy", "dauntless-shield", "ripen", "sap-sipper", "rough-skin", "huge-power",
+                "drizzle", "sand-veil", "shield-dust", "arena-trap", "snow-cloak", "adaptability", "minus", "swarm",
+                "dragons-maw", "electric-surge", "regenerator", "illusion", "shields-down", "gulp-missile",
+                "screen-cleaner", "berserk", "levitate", "trace", "sand-stream", "oblivious", "flash-fire",
+                "tangled-feet", "download", "cute-charm", "marvel-scale", "wandering-spirit", "chilling-neigh",
+                "psychic-surge", "poison-touch", "delta-stream", "stakeout", "cotton-down", "mimicry", "long-reach",
+                "pressure", "serene-grace", "water-veil", "speed-boost", "cloud-nine", "rock-head", "rivalry",
+                "iron-fist", "truant", "overgrow", "neutralizing-gas", "seed-sower", "tough-claws", "dark-aura",
+                "wimp-out", "justified", "steam-engine", "power-spot", "liquid-voice", "wonder-guard", "chlorophyll",
+                "soundproof", "damp", "color-change", "air-lock", "unburden", "run-away", "guts", "quick-draw",
+                "lingering-aroma"
+        });
+
+        habitatComboBox = new JComboBox<>(new String[] {
+                "all habitats", "forest", "cave", "water", "desert", "rough-terrain", "mountain", "sea",
+                "grassland", "waters-edge", "urban", "rare"
+        });
 
         searchButton = new JButton("Search");
         chargeData = new JButton("Charge");
 
 
-        searchPanel.add(new JLabel("Search Pokémon by Name: "));
+        searchPanel.add(new JLabel("Search Pokémon by ID: "));
         searchPanel.add(searchField);
         searchPanel.add(new JLabel("Type: "));
         searchPanel.add(typeComboBox);
@@ -90,8 +155,6 @@ public class MainWindow extends JFrame implements CargaDatosListener {
         searchPanel.add(regionComboBox);
         searchPanel.add(new JLabel("Ability: "));
         searchPanel.add(abilityComboBox);
-        searchPanel.add(new JLabel("Move: "));
-        searchPanel.add(moveComboBox);
         searchPanel.add(new JLabel("Habitat: "));
         searchPanel.add(habitatComboBox);
         searchPanel.add(searchButton);
@@ -129,9 +192,235 @@ public class MainWindow extends JFrame implements CargaDatosListener {
             }
         });
 
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Obtener los Pokémon filtrados
+                List<Pokemon> pokemones = new ArrayList<>();
+                if (searchField.getText() != null && !searchField.getText().trim().isEmpty()){
+                    String input = searchField.getText().trim(); // Obtener el texto del campo de búsqueda
+                    Pokemon nuevaPokemon;
+                    try {
+                        int numero = Integer.parseInt(input); // Intentamos convertirlo a un número entero
+                        nuevaPokemon = pokemonRepository.findById(numero);
+                        pokemones.add(nuevaPokemon);
+                    } catch (NumberFormatException a) {
+                    }
+                }else {
+                    String selectionType = typeComboBox.getSelectedItem().toString();
+                    if (selectionType.equals("all types")) {
+                        selectionType = null;
+                    }
+                    String selectionRegion = regionComboBox.getSelectedItem().toString();
+                    if (selectionRegion.equals("all regions")) {
+                        selectionRegion = null;
+                    }
+                    String selectionAbility = abilityComboBox.getSelectedItem().toString();
+                    if (selectionAbility.equals("all abilities")) {
+                        selectionAbility = null;
+                    }
+                    String selectionHabitat = habitatComboBox.getSelectedItem().toString();
+                    if (selectionHabitat.equals("all habitats")) {
+                        selectionHabitat = null;
+                    }
+                    pokemones= pokemonRepository.findPokemonsByFilters(selectionType, selectionRegion, selectionAbility, selectionHabitat);
+
+                }
+
+
+                // Llamar al repositorio para obtener los Po
+
+                if (pokemones == null || pokemones.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "No hay Pokémon con los filtros seleccionados.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+                }else {
+                    openFilterWindow(pokemones);
+                }
+
+            }
+        });
+
+
         loadPage();
         setVisible(true);
     }
+
+    private void openFilterWindow(List<Pokemon> pokemonsList) {
+        AtomicInteger currentIndex = new AtomicInteger(0); // Definir el índice actual
+
+        SwingUtilities.invokeLater(() -> {
+            // Crear la ventana principal
+            JFrame detailFrame = new JFrame("Detalles de Pokémon");
+            detailFrame.setSize(800, 600);
+            detailFrame.setLocationRelativeTo(null);
+
+            JPanel detailPanel = new JPanel(new BorderLayout());
+            detailPanel.setBackground(new Color(230, 230, 250));
+
+            JLabel nameLabel = new JLabel("", JLabel.CENTER);
+            nameLabel.setFont(new Font("Arial", Font.BOLD, 18));
+
+            JLabel typeLabel = new JLabel("", JLabel.CENTER);
+            JLabel evolutionsLabel = new JLabel("", JLabel.CENTER);
+            JLabel iconLabel = new JLabel();
+
+            // Panel derecho con estadísticas
+            JPanel rightPanel = new JPanel(new GridLayout(10, 1, 5, 5));
+            rightPanel.setBackground(new Color(230, 230, 250));
+            rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            JLabel[] statLabels = new JLabel[8];
+            for (int i = 0; i < statLabels.length; i++) {
+                statLabels[i] = new JLabel();
+                rightPanel.add(statLabels[i]);
+            }
+
+            // Panel de imágenes de evoluciones
+            JPanel imagePanel = new JPanel(new GridLayout(1, 3, 10, 10));
+            JLabel iconLabel1 = new JLabel();
+            JLabel iconLabel2 = new JLabel();
+            JLabel iconLabel3 = new JLabel();
+
+            JPanel imagePanel1 = new JPanel(new BorderLayout());
+            JPanel imagePanel2 = new JPanel(new BorderLayout());
+            JPanel imagePanel3 = new JPanel(new BorderLayout());
+
+            JLabel textLabel1 = new JLabel();
+            JLabel textLabel2 = new JLabel();
+            JLabel textLabel3 = new JLabel();
+
+            imagePanel1.add(iconLabel1, BorderLayout.CENTER);
+            imagePanel1.add(textLabel1, BorderLayout.SOUTH);
+
+            imagePanel2.add(iconLabel2, BorderLayout.CENTER);
+            imagePanel2.add(textLabel2, BorderLayout.SOUTH);
+
+            imagePanel3.add(iconLabel3, BorderLayout.CENTER);
+            imagePanel3.add(textLabel3, BorderLayout.SOUTH);
+
+            imagePanel.add(imagePanel1);
+            imagePanel.add(imagePanel2);
+            imagePanel.add(imagePanel3);
+
+            JButton nextButton = new JButton("Siguiente");
+            nextButton.addActionListener(e -> {
+                int nextIndex = currentIndex.incrementAndGet(); // Incrementa el índice
+                if (nextIndex < pokemonsList.size()) {
+                    // Si el índice está dentro del rango, actualiza el Pokémon
+                    updatePokemonDetails(pokemonsList.get(nextIndex).getId(), nameLabel, typeLabel, evolutionsLabel, iconLabel, statLabels, iconLabel1, iconLabel2, iconLabel3, textLabel1, textLabel2, textLabel3);
+                } else {
+                    // Si el índice supera el rango, desactiva el botón
+                    nextButton.setEnabled(false);
+                }
+            });
+
+            JPanel leftPanel = new JPanel(new BorderLayout());
+            leftPanel.setBackground(new Color(230, 230, 250));
+            leftPanel.add(iconLabel, BorderLayout.CENTER);
+            leftPanel.add(typeLabel, BorderLayout.NORTH);
+            leftPanel.add(evolutionsLabel, BorderLayout.SOUTH);
+            leftPanel.add(imagePanel, BorderLayout.SOUTH);
+
+            detailPanel.add(nameLabel, BorderLayout.NORTH);
+            detailPanel.add(leftPanel, BorderLayout.WEST);
+            detailPanel.add(rightPanel, BorderLayout.EAST);
+            detailPanel.add(nextButton, BorderLayout.SOUTH);
+
+            detailFrame.add(detailPanel);
+            detailFrame.setVisible(true);
+
+            // Mostrar el primer Pokémon
+            updatePokemonDetails(pokemonsList.get(0).getId(), nameLabel, typeLabel, evolutionsLabel, iconLabel, statLabels, iconLabel1, iconLabel2, iconLabel3, textLabel1, textLabel2, textLabel3);
+        });
+    }
+
+    private void updatePokemonDetails(int pokemonId, JLabel nameLabel, JLabel typeLabel, JLabel evolutionsLabel, JLabel iconLabel, JLabel[] statLabels, JLabel iconLabel1, JLabel iconLabel2, JLabel iconLabel3, JLabel textLabel1, JLabel textLabel2, JLabel textLabel3) {
+        executor.submit(() -> {
+            Pokemon pokemon = pokemonRepository.findById(pokemonId);
+            String name = pokemon.getName();
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Tipo: ");
+            for (Types types : pokemon.getTypes()) {
+                sb.append(types.getName()).append(" ");
+            }
+            String type = sb.toString();
+
+            StringBuilder sb2 = new StringBuilder();
+            sb2.append("Evoluciones: ");
+            for (Integer evoluciones : pokemon.getEnvoles()) {
+                sb2.append(evoluciones).append(" ");
+            }
+            String evolutions = sb2.toString();
+
+            ImageIcon icon = fetchPokemonSprite(pokemonId);
+            ImageIcon icon1, icon2, icon3;
+            if (pokemon.getEnvoles().size() == 3) {
+                icon1 =fetchPokemonSprite(pokemon.getEnvoles().get(0));
+                icon2 =fetchPokemonSprite(pokemon.getEnvoles().get(1));
+                icon3 =fetchPokemonSprite(pokemon.getEnvoles().get(2));
+            }else {
+                icon1 = fetchPokemonSprite(pokemon.getEnvoles().get(0));
+                icon2 = fetchPokemonSprite(pokemon.getEnvoles().get(0));
+                icon3 = fetchPokemonSprite(pokemon.getEnvoles().get(1));
+
+            }
+            List<Pokemon> evolesName = new ArrayList<>();
+            for (Integer evolucion : pokemon.getEnvoles()) {
+                Pokemon pokemonEvolesName = pokemonRepository.findById(evolucion).get();
+                evolesName.add(pokemonEvolesName);
+                if(pokemon.getEnvoles().size()!=3){
+                    Pokemon pokemonEvolesName1 = pokemonRepository.findById(pokemon.getEnvoles().get(0)).get();
+                    evolesName.add(pokemonEvolesName1);
+                }
+            }
+
+            SwingUtilities.invokeLater(() -> {
+                // Limpiar las etiquetas antes de actualizarlas
+                nameLabel.setText("");
+                typeLabel.setText("");
+                evolutionsLabel.setText("");
+                iconLabel.setIcon(null);
+
+                for (JLabel statLabel : statLabels) {
+                    statLabel.setText(""); // Limpiar las estadísticas
+                }
+
+                iconLabel1.setIcon(null);
+                iconLabel2.setIcon(null);
+                iconLabel3.setIcon(null);
+
+                // Actualizar los detalles con la nueva información
+                nameLabel.setText("Nombre: " + name);
+                typeLabel.setText(type);
+                evolutionsLabel.setText(evolutions);
+                iconLabel.setIcon(new ImageIcon(icon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH)));
+
+                statLabels[0].setText("HP: " + pokemon.getStats_hp());
+                statLabels[1].setText("Ataque: " + pokemon.getStats_attack());
+                statLabels[2].setText("Defensa: " + pokemon.getStats_defense());
+                statLabels[3].setText("Atq. Esp.: " + pokemon.getStats_special_attack());
+                statLabels[4].setText("Def. Esp.: " + pokemon.getStats_special_defense());
+                statLabels[5].setText("Velocidad: " + pokemon.getStats_speed());
+                statLabels[6].setText("Precisión: " + pokemon.getStats_accuracy());
+                statLabels[7].setText("Evasión: " + pokemon.getStats_evasion());
+
+                iconLabel1.setIcon(new ImageIcon(icon1.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
+                iconLabel2.setIcon(new ImageIcon(icon2.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
+                iconLabel3.setIcon(new ImageIcon(icon3.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
+
+                textLabel1.setText("ID: " + evolesName.get(0).getId() + " Nombre: " + evolesName.get(0).getName());
+                textLabel2.setText("ID: " + evolesName.get(1).getId() + " Nombre: " + evolesName.get(1).getName());
+                textLabel3.setText("ID: " + evolesName.get(2).getId() + " Nombre: " + evolesName.get(2).getName());
+
+                nameLabel.revalidate();
+                nameLabel.repaint();
+            });
+        });
+    }
+
+
+
+    //pagina de inicio
     private void loadPage() {
         imagePanel.removeAll();
 

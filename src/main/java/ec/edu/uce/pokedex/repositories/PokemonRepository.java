@@ -23,4 +23,25 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Integer> {
 
     @Query("SELECT p.id FROM Pokemon p")
     List<Integer> findAllPokemonIds();
+
+    @Query("SELECT DISTINCT p FROM Pokemon p " +
+            "JOIN p.types t " +
+            "JOIN p.regions r " +
+            "JOIN p.abilities a " +
+            "JOIN p.habitat h " +
+            "WHERE " +
+            "(:type IS NULL OR t.name = :type) " +
+            "AND (:region IS NULL OR r.name = :region) " +
+            "AND (:ability IS NULL OR a.name = :ability) " +
+            "AND (:habitat IS NULL OR h.name = :habitat)")
+    List<Pokemon> findPokemonsByFilters(
+            @Param("type") String type,
+            @Param("region") String region,
+            @Param("ability") String ability,
+            @Param("habitat") String habitat);
+
+    @Query("SELECT p FROM Pokemon p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+    List<Pokemon> findPokemonsByName(@Param("name") String name);
+
+
 }
