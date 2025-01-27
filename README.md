@@ -25,4 +25,4 @@ Finalmente, agrega el siguiente comando en el campo de opciones VM:
 
 ---
 
-Ahora debería funcionar correctamente. Si sigues teniendo problemas, no dudes en consultar la documentación oficial o abrir un issue en este repositorio.
+Ahora debería funcionar correctamente.
