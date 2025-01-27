@@ -132,33 +132,52 @@ public class MainWindow extends JFrame implements CargaDatosListener {
         loadPage();
         setVisible(true);
     }
-
     private void loadPage() {
         imagePanel.removeAll();
 
-        int startId = (currentPage - 1) * pageSize + 1;
+        int startId = (currentPage - 1) * pageSize + 1; // Calculamos el inicio de la página actual
+        System.out.println("Start ID: " + startId); // Para depurar el valor de startId
         for (int i = 0; i < pageSize; i++) {
-            int pokemonId = startId + i;
+            int pokemonId = startId + i; // ID del Pokémon actual
+            System.out.println("Loading Pokémon ID: " + pokemonId); // Para depurar el ID de cada Pokémon
 
-            // Panel principal
-            JPanel cardPanel = new JPanel();
+            // Panel principal con GridLayout para mostrar el ID arriba y la imagen en el centro
+            JPanel cardPanel = new JPanel(new GridLayout(2, 1)); // 2 filas: ID arriba, imagen + nombre abajo
             cardPanel.setBackground(new Color(255, 250, 205)); // Amarillo claro
             cardPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-            cardPanel.setLayout(new BorderLayout());
 
-            // Panel de información
-            JPanel infoPanel = new JPanel(new GridLayout(1, 2));
-            infoPanel.setBackground(new Color(255, 250, 205));
+            // Recuperamos el Pokémon de la base de datos
+            Pokemon nuevoPokemon = pokemonRepository.findById(pokemonId);
 
+            // Panel para el ID del Pokémon
+            JPanel idPanel = new JPanel();
+            idPanel.setBackground(new Color(255, 250, 205));
+            JLabel idLabel = new JLabel("ID: " + (nuevoPokemon != null ? nuevoPokemon.getId() : "N/A"), JLabel.CENTER);
+            idLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+            idPanel.add(idLabel);
+            cardPanel.add(idPanel);
 
+            // Panel para la imagen y el nombre del Pokémon
+            JPanel imageNamePanel = new JPanel();
+            imageNamePanel.setBackground(new Color(255, 250, 205));
+            imageNamePanel.setLayout(new BorderLayout());
 
-            // Añadir infoPanel arriba de la imagen
-            cardPanel.add(infoPanel, BorderLayout.NORTH);
-
-            // Etiqueta de imagen
+            // Imagen del Pokémon
             JLabel pokemonLabel = new JLabel("Loading...");
             pokemonLabel.setHorizontalAlignment(JLabel.CENTER);
-            cardPanel.add(pokemonLabel, BorderLayout.CENTER);
+            pokemonLabel.setPreferredSize(new Dimension(100, 100)); // Ajusta el tamaño según tus necesidades
+            imageNamePanel.add(pokemonLabel, BorderLayout.CENTER);
+
+            // Nombre del Pokémon
+            if (nuevoPokemon != null) {
+                JLabel nameLabel = new JLabel(nuevoPokemon.getName(), JLabel.CENTER); // Nombre real del Pokémon
+                nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+                nameLabel.setPreferredSize(new Dimension(100, 30));
+                imageNamePanel.add(nameLabel, BorderLayout.SOUTH);
+            }
+
+            // Añadir el panel con imagen y nombre
+            cardPanel.add(imageNamePanel);
 
             // Fetch Pokémon data asíncronamente
             executor.submit(() -> {
@@ -196,6 +215,7 @@ public class MainWindow extends JFrame implements CargaDatosListener {
         imagePanel.revalidate();
         imagePanel.repaint();
     }
+
 
     private ImageIcon fetchPokemonSprite(int pokemonId) {
         try {
@@ -264,13 +284,18 @@ public class MainWindow extends JFrame implements CargaDatosListener {
 
             //evoluciones
             ImageIcon icon = fetchPokemonSprite(pokemonId);
-            ImageIcon icon1 =fetchPokemonSprite(pokemon.getEnvoles().get(0));
-            ImageIcon icon2 =fetchPokemonSprite(pokemon.getEnvoles().get(1));
             ImageIcon icon3;
+            ImageIcon icon1;
+            ImageIcon icon2;
             if (pokemon.getEnvoles().size() == 3) {
+                icon1 =fetchPokemonSprite(pokemon.getEnvoles().get(0));
+                icon2 =fetchPokemonSprite(pokemon.getEnvoles().get(1));
                 icon3 =fetchPokemonSprite(pokemon.getEnvoles().get(2));
             }else {
-                icon3 =fetchPokemonSprite(pokemon.getEnvoles().get(0));
+                icon1 = fetchPokemonSprite(pokemon.getEnvoles().get(0));
+                icon2 = fetchPokemonSprite(pokemon.getEnvoles().get(0));
+                icon3 = fetchPokemonSprite(pokemon.getEnvoles().get(1));
+
             }
             List<Pokemon> evolesName = new ArrayList<>();
             for (Integer evolucion : pokemon.getEnvoles()) {
@@ -336,7 +361,7 @@ public class MainWindow extends JFrame implements CargaDatosListener {
                 JLabel iconLabel1 = new JLabel(resizedIcon1);
                 ImageIcon resizedIcon2 = new ImageIcon(icon2.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)); // Redimensionar
                 JLabel iconLabel2 = new JLabel(resizedIcon2);
-                ImageIcon resizedIcon3 = new ImageIcon(icon3.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH)); // Redimensionar
+                ImageIcon resizedIcon3 = new ImageIcon(icon3.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)); // Redimensionar
                 JLabel iconLabel3 = new JLabel(resizedIcon3);
 
                 // Crear un JPanel para cada imagen y agregar los textos centrados
