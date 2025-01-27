@@ -1,5 +1,5 @@
 package ec.edu.uce.pokedex.Grafica;
-/*
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -201,5 +201,5 @@ public class Inicio extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Inicio::new);
     }
-}*/
+}
 
