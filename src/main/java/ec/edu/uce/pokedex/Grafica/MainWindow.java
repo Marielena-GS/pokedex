@@ -344,8 +344,8 @@ public class MainWindow extends JFrame implements CargaDatosListener {
                 imagePanel1.add(iconLabel1, BorderLayout.CENTER);
                 JPanel textPanel1 = new JPanel();
                 textPanel1.setLayout(new BoxLayout(textPanel1, BoxLayout.Y_AXIS));
-                textPanel1.add(new JLabel("id: " +evolesName.get(0).getId()));
-                textPanel1.add(new JLabel("name: " + evolesName.get(0).getName()));
+                textPanel1.add(new JLabel("ID: " +evolesName.get(0).getId()));
+                textPanel1.add(new JLabel("NAME: " + evolesName.get(0).getName()));
                 textPanel1.setAlignmentX(JPanel.CENTER_ALIGNMENT); // Centrar el texto
                 imagePanel1.add(textPanel1, BorderLayout.SOUTH);
 
@@ -353,8 +353,8 @@ public class MainWindow extends JFrame implements CargaDatosListener {
                 imagePanel2.add(iconLabel2, BorderLayout.CENTER);
                 JPanel textPanel2 = new JPanel();
                 textPanel2.setLayout(new BoxLayout(textPanel2, BoxLayout.Y_AXIS));
-                textPanel2.add(new JLabel("id: " + evolesName.get(1).getId()));
-                textPanel2.add(new JLabel("name: " + evolesName.get(1).getName()));
+                textPanel2.add(new JLabel("ID: " + evolesName.get(1).getId()));
+                textPanel2.add(new JLabel("NAME: " + evolesName.get(1).getName()));
                 textPanel2.setAlignmentX(JPanel.CENTER_ALIGNMENT); // Centrar el texto
                 imagePanel2.add(textPanel2, BorderLayout.SOUTH);
 
@@ -362,8 +362,9 @@ public class MainWindow extends JFrame implements CargaDatosListener {
                 imagePanel3.add(iconLabel3, BorderLayout.CENTER);
                 JPanel textPanel3 = new JPanel();
                 textPanel3.setLayout(new BoxLayout(textPanel3, BoxLayout.Y_AXIS));
-                textPanel3.add(new JLabel("id: " + evolesName.get(2).getId()));
-                textPanel3.add(new JLabel("name: " + evolesName.get(2).getName()));
+
+                textPanel3.add(new JLabel("ID: " + evolesName.get(2).getId()));
+                textPanel3.add(new JLabel("NAME: " + evolesName.get(2).getName()));
                 textPanel3.setAlignmentX(JPanel.CENTER_ALIGNMENT); // Centrar el texto
                 imagePanel3.add(textPanel3, BorderLayout.SOUTH);
 
@@ -391,7 +392,7 @@ public class MainWindow extends JFrame implements CargaDatosListener {
     private void navigatePage(int direction, JLabel pageInfo) {
         currentPage += direction;
         if (currentPage < 1) currentPage = 1;
-        pageInfo.setText("Page " + currentPage);
+        pageInfo.setText("Page: " + currentPage);
         loadPage();
     }
 

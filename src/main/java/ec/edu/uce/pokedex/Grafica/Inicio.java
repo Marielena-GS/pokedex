@@ -28,8 +28,8 @@ public class Inicio extends JFrame {
         JPanel searchPanel = new JPanel(new FlowLayout());
         searchPanel.setBackground(new Color(173, 216, 230)); // Azul claro
         searchField = new JTextField(20);
-        searchButton = new JButton("Search");
-        searchPanel.add(new JLabel("Search Pokémon by ID or Name: "));
+        searchButton = new JButton(" Search ");
+        searchPanel.add(new JLabel(" Search Pokémon: "));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
 
@@ -41,10 +41,10 @@ public class Inicio extends JFrame {
         // Panel de paginación
         paginationPanel = new JPanel(new FlowLayout());
         paginationPanel.setBackground(new Color(240, 230, 140)); // Amarillo claro
-        backButton = new JButton("⬅ Back");
-        nextButton = new JButton("Next ➡");
-        JLabel pageInfo = new JLabel("Page " + currentPage, JLabel.CENTER);
-        pageInfo.setFont(new Font("Arial", Font.BOLD, 14));
+        backButton = new JButton("⬅ Back ");
+        nextButton = new JButton(" Next ➡");
+        JLabel pageInfo = new JLabel(" Page: " + currentPage, JLabel.CENTER);
+        pageInfo.setFont(new Font("Serif", Font.PLAIN, 16));
         paginationPanel.add(backButton);
         paginationPanel.add(pageInfo);
         paginationPanel.add(nextButton);
@@ -120,7 +120,7 @@ public class Inicio extends JFrame {
             // Simulación de la llamada a la API
             String imagePath = String.format("src/main/resources/pokemon_sprites/%d.png", pokemonId);
             ImageIcon icon = new ImageIcon(imagePath);
-            Image scaledImage = icon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+            Image scaledImage = icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
             return new ImageIcon(scaledImage);
         } catch (Exception e) {
             return null;
@@ -129,7 +129,7 @@ public class Inicio extends JFrame {
 
     private void showPokemonDetails(int pokemonId) {
         executor.submit(() -> {
-            String name = "Pokémon #" + pokemonId;
+            String name = "Pokémon # " + pokemonId;
             String type = "Type: Fire";
             String evolutions = "Evolutions: " + pokemonId + " -> " + (pokemonId + 1) + " -> " + (pokemonId + 2);
             ImageIcon icon = fetchPokemonSprite(pokemonId);
@@ -142,8 +142,8 @@ public class Inicio extends JFrame {
                 JPanel detailPanel = new JPanel(new BorderLayout());
                 detailPanel.setBackground(new Color(230, 230, 250));
 
-                JLabel nameLabel = new JLabel("Name: " + name, JLabel.CENTER);
-                nameLabel.setFont(new Font("Arial", Font.BOLD, 18));
+                JLabel nameLabel = new JLabel("\n Name: " + name, JLabel.CENTER);
+                nameLabel.setFont(new Font("Tahoma", Font.BOLD, 18));
                 JLabel typeLabel = new JLabel(type, JLabel.CENTER);
                 JLabel evolutionsLabel = new JLabel(evolutions, JLabel.CENTER);
                 JLabel iconLabel = new JLabel(icon);
