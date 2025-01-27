@@ -62,7 +62,7 @@ public class MainWindow extends JFrame implements CargaDatosListener {
         this.driverTypesService = driverTypesService;
         this.driverPokemonService = driverPokemonService;
         setTitle("Pokédex");
-        setSize(1300, 1200);
+        setSize(1010, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
