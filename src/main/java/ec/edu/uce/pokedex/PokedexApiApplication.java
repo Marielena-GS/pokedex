@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"ec.edu.uce.pokedex.Grafica", "ec.edu.uce.pokedex.DataCharge", "ec.edu.uce.pokedex.repositories", "ec.edu.uce.pokedex.Service"})
+@ComponentScan(basePackages = {"ec.edu.uce.pokedex.Grafica", "ec.edu.uce.pokedex.DataCharge", "ec.edu.uce.pokedex.repositories"})
 public class PokedexApiApplication implements CommandLineRunner {
 
 	@Autowired
